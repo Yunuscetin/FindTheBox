@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: find-the-box
+    runtime: python
+    plan: starter
+    buildCommand: ""
+    startCommand: python server.py
+    healthCheckPath: /api/health
+    disk:
+      name: game-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: GAME_DB_PATH
+        value: /var/data/game.db
