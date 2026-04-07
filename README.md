@@ -15,23 +15,7 @@ Bu proje, tarayicida oynanan cok oyunculu bir lobi oyunu olarak hazirlandi.
 - Step sonuclari ve lider tablosu
 - Turnuva sonunda en cok step kazanan oyuncunun lider ilan edilmesi
 
-## Yerelde calistirma
-
-Python 3 kuruluysa proje klasorunde terminal acip su komutu calistir:
-
-```bash
-python server.py
-```
-
-Ardindan tarayicida su adresi ac:
-
-```text
-http://127.0.0.1:8000
-```
-
 ## Notlar
-
-- Oda verileri artik yerelde [game.db](C:\Users\YUNUS NUR\Documents\New project\game.db) icinde SQLite olarak tutulur.
 - Host ayrilirsa lobi otomatik olarak siradaki oyuncuya devredilir.
 - Uzun sure pasif kalan oyuncular ve odalar otomatik temizlenir.
 - Canliya alirken HTTPS, ters proxy, process manager ve domain baglantisi eklenmesi yeterli olur.
