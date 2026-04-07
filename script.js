@@ -23,6 +23,7 @@ const elements = {
   homeView: document.getElementById("homeView"),
   roomView: document.getElementById("roomView"),
   playerBadge: document.getElementById("playerBadge"),
+  homeBrandButton: document.getElementById("homeBrandButton"),
   createRoomButton: document.getElementById("createRoomButton"),
   createRoomDialog: document.getElementById("createRoomDialog"),
   createRoomForm: document.getElementById("createRoomForm"),
@@ -556,6 +557,14 @@ function leaveRoom({ silent = false } = {}) {
 }
 
 function setupEvents() {
+  elements.homeBrandButton.addEventListener("click", () => {
+    if (state.roomCode) {
+      leaveRoom({ silent: true });
+    } else {
+      setActiveView("home");
+    }
+  });
+
   elements.createRoomButton.addEventListener("click", async () => {
     await ensurePlayerName();
     elements.createRoomDialog.showModal();

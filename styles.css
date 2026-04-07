@@ -48,6 +48,20 @@ input {
   margin-bottom: 18px;
 }
 
+.brand-button {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.brand-button:hover {
+  opacity: 0.92;
+}
+
 .eyebrow,
 .section-kicker {
   margin: 0 0 8px;
@@ -84,6 +98,10 @@ h1 {
 
 .view.active {
   display: block;
+}
+
+.room-shell {
+  padding: 18px;
 }
 
 .panel {
@@ -231,6 +249,15 @@ button:disabled {
   display: grid;
   align-content: start;
   gap: 16px;
+  background: rgba(255, 255, 255, 0.38);
+  border: 1px solid rgba(39, 77, 50, 0.08);
+  border-radius: 24px;
+}
+
+.game-panel {
+  background: rgba(255, 255, 255, 0.34);
+  border: 1px solid rgba(39, 77, 50, 0.08);
+  border-radius: 24px;
 }
 
 .room-header,
