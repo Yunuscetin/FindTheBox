@@ -27,6 +27,7 @@ ROOM_TTL_SECONDS = 60 * 60 * 24
 PLAYER_TTL_SECONDS = 60 * 20
 STATIC_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("GAME_DB_PATH", str(STATIC_DIR / "game.db")))
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "").strip()
 
 
 def now_ts() -> int:
@@ -384,6 +385,55 @@ class GameStore:
                     self._save_room(connection, room)
             connection.commit()
 
+    def get_live_stats(self) -> dict[str, Any]:
+        with self.lock, self._connect() as connection:
+            rows = connection.execute("SELECT payload FROM rooms").fetchall()
+
+        total_rooms = 0
+        total_players = 0
+        waiting_rooms = 0
+        playing_rooms = 0
+        celebrating_rooms = 0
+        finished_rooms = 0
+        capacity_total = 0
+        freshest_update = 0
+
+        for row in rows:
+            room = self._deserialize_room(row["payload"])
+            room.prune_inactive_players()
+            if not room.players:
+                continue
+
+            room.advance_if_due()
+            total_rooms += 1
+            total_players += len(room.players)
+            capacity_total += room.max_players
+            freshest_update = max(freshest_update, room.updated_at)
+
+            if room.phase == "waiting":
+                waiting_rooms += 1
+            elif room.phase == "playing":
+                playing_rooms += 1
+            elif room.phase == "celebrating":
+                celebrating_rooms += 1
+            elif room.phase == "finished":
+                finished_rooms += 1
+
+        return {
+            "rooms": {
+                "total": total_rooms,
+                "waiting": waiting_rooms,
+                "playing": playing_rooms,
+                "celebrating": celebrating_rooms,
+                "finished": finished_rooms,
+            },
+            "players": {
+                "online": total_players,
+                "capacity": capacity_total,
+            },
+            "updatedAt": freshest_update,
+        }
+
     def create_room(self, player_id: str, player_name: str, max_players: int) -> Room:
         with self.lock, self._connect() as connection:
             room_code = make_room_code()
@@ -462,6 +512,16 @@ def json_response(handler: SimpleHTTPRequestHandler, status: HTTPStatus, payload
     handler.wfile.write(body)
 
 
+def html_response(handler: SimpleHTTPRequestHandler, status: HTTPStatus, body: str) -> None:
+    encoded = body.encode("utf-8")
+    handler.send_response(status)
+    handler.send_header("Content-Type", "text/html; charset=utf-8")
+    handler.send_header("Cache-Control", "no-store")
+    handler.send_header("Content-Length", str(len(encoded)))
+    handler.end_headers()
+    handler.wfile.write(encoded)
+
+
 def read_json(handler: SimpleHTTPRequestHandler) -> dict[str, Any]:
     content_length = int(handler.headers.get("Content-Length", "0"))
     if content_length <= 0:
@@ -480,6 +540,21 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
 
         if parsed.path == "/api/health":
             return json_response(self, HTTPStatus.OK, {"ok": True, "status": "healthy"})
+
+        if parsed.path == "/api/stats":
+            try:
+                self.assert_admin_access()
+                return json_response(self, HTTPStatus.OK, {"ok": True, "stats": store.get_live_stats()})
+            except ValueError as error:
+                return json_response(self, HTTPStatus.FORBIDDEN, {"ok": False, "error": str(error)})
+
+        if parsed.path == "/admin.html":
+            if not ADMIN_TOKEN:
+                return html_response(
+                    self,
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    "<!DOCTYPE html><html lang='tr'><meta charset='utf-8'><title>Admin Kapalı</title><body><p>ADMIN_TOKEN tanımlanmadığı için admin görünümü devre dışı.</p></body></html>",
+                )
 
         if parsed.path.startswith("/api/rooms/"):
             try:
@@ -636,6 +711,14 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
 
     def log_message(self, format: str, *args: Any) -> None:
         print(f"[server] {self.address_string()} - {format % args}")
+
+    def assert_admin_access(self) -> None:
+        if not ADMIN_TOKEN:
+            raise ValueError("Admin erişimi henüz yapılandırılmadı.")
+
+        token = self.headers.get("X-Admin-Token", "").strip()
+        if token != ADMIN_TOKEN:
+            raise ValueError("Bu istatistik ekranına erişim iznin yok.")
 
     @staticmethod
     def validate_player(player_id: str, player_name: str) -> None:

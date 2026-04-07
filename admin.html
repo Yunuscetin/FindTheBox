@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindTheBox Canlı Durum</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell admin-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Yönetim Görünümü</p>
+        <h1>Canlı Durum</h1>
+      </div>
+      <a class="ghost-button admin-home-link" href="/">Ana Sayfaya Dön</a>
+    </header>
+
+    <main class="panel admin-panel">
+      <section class="admin-gate">
+        <div class="player-list-card">
+          <div class="player-list-title">
+            <span>Admin Erişimi</span>
+            <strong>Token</strong>
+          </div>
+          <form id="adminTokenForm" class="admin-token-form">
+            <input id="adminTokenInput" type="password" placeholder="Admin token gir" autocomplete="off">
+            <button class="primary-button" type="submit">İstatistikleri Aç</button>
+          </form>
+          <p id="adminTokenHint" class="admin-token-hint">Render ortam değişkenindeki <code>ADMIN_TOKEN</code> değerini girmen gerekir.</p>
+        </div>
+      </section>
+
+      <section class="admin-summary">
+        <div class="admin-card">
+          <span>Aktif Oyuncu</span>
+          <strong id="onlinePlayersValue">0</strong>
+          <small id="playerCapacityValue">Kapasite: 0</small>
+        </div>
+        <div class="admin-card">
+          <span>Toplam Oda</span>
+          <strong id="totalRoomsValue">0</strong>
+          <small id="lastUpdatedValue">Henüz veri alınmadı</small>
+        </div>
+      </section>
+
+      <section class="admin-breakdown">
+        <div class="player-list-card">
+          <div class="player-list-title">
+            <span>Oda Durumları</span>
+            <strong>Canlı</strong>
+          </div>
+          <ul class="players-list">
+            <li class="compact"><strong>Bekleyen</strong><span id="waitingRoomsValue">0</span></li>
+            <li class="compact"><strong>Oynanan</strong><span id="playingRoomsValue">0</span></li>
+            <li class="compact"><strong>Kutlama</strong><span id="celebratingRoomsValue">0</span></li>
+            <li class="compact"><strong>Biten</strong><span id="finishedRoomsValue">0</span></li>
+          </ul>
+        </div>
+
+        <div class="panel-note">
+          <strong>Nasıl kullanılır?</strong>
+          <p>Bu sayfa 10 saniyede bir kendini yeniler. Token girdikten sonra tarayıcıdan <code>/admin.html</code> adresi üzerinden anlık oyuncu ve oda sayısını takip edebilirsin.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
