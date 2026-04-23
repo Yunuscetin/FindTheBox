@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://findthebox.co/</loc>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://findthebox.co/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/" />
+  </url>
+  <url>
+    <loc>https://findthebox.co/tr/</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://findthebox.co/" />
+  </url>
+  <url>
+    <loc>https://findthebox.co/en/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://findthebox.co/" />
+  </url>
+  <url>
+    <loc>https://findthebox.co/tr/nasil-oynanir/</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/nasil-oynanir/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/how-to-play/" />
+  </url>
+  <url>
+    <loc>https://findthebox.co/en/how-to-play/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/how-to-play/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/nasil-oynanir/" />
+  </url>
+  <url>
+    <loc>https://findthebox.co/tr/arkadaslarla-browser-oyunu/</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/arkadaslarla-browser-oyunu/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/browser-game-with-friends/" />
+  </url>
+  <url>
+    <loc>https://findthebox.co/en/browser-game-with-friends/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://findthebox.co/en/browser-game-with-friends/" />
+    <xhtml:link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/arkadaslarla-browser-oyunu/" />
+  </url>
+</urlset>

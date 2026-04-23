@@ -25,13 +25,83 @@ STEP_CONFIG = [
 ]
 ROOM_TTL_SECONDS = 60 * 60 * 24
 PLAYER_TTL_SECONDS = 60 * 20
+TURN_TIMEOUT_SECONDS = 10
+PLAYER_TOUCH_INTERVAL_SECONDS = 4
+PRUNE_INTERVAL_SECONDS = 30
 STATIC_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("GAME_DB_PATH", str(STATIC_DIR / "game.db")))
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "").strip()
+MESSAGES = {
+    "tr": {
+        "room_not_found": "Oda bulunamadi.",
+        "lobby_full": "Lobi dolu. Maksimum {max_players} oyuncu katılabilir.",
+        "host_only": "Bu islemi sadece oda sahibi yapabilir.",
+        "join_request_not_found": "Katilim istegi bulunamadi.",
+        "host_cannot_kick_self": "Oda sahibi kendini oyundan atamaz.",
+        "player_not_found": "Oyuncu odada bulunamadi.",
+        "api_not_found": "API bulunamadi.",
+        "server_error": "Sunucuda bir hata olustu.",
+        "not_in_room": "Bu odada yer almiyorsun.",
+        "player_id_required": "Oyuncu kimliği gerekli.",
+        "room_code_required": "Oda kodu gerekli.",
+        "join_request_sent": "Katılım isteğin oda sahibine iletildi.",
+        "need_two_players": "Oyunu baslatmak icin en az 2 oyuncu gerekli.",
+        "restart_before_finish": "Turnuva bitmeden yeniden baslatilamaz.",
+        "game_not_playing": "Oyun su an oynanmiyor.",
+        "not_your_turn": "Su an sira sende degil.",
+        "invalid_tile": "Gecersiz kutu secimi.",
+        "tile_already_open": "Bu kutu zaten acildi.",
+        "admin_not_configured": "Admin erişimi henüz yapılandırılmadı.",
+        "admin_forbidden": "Bu istatistik ekranına erişim iznin yok.",
+        "player_identity_missing": "Oyuncu kimliği bulunamadı.",
+        "player_name_short": "Oyuncu adı en az 2 karakter olmalı.",
+        "player_name_long": "Oyuncu adı en fazla 20 karakter olmalı.",
+        "max_players_invalid": "Oyuncu sayısı 2 ile 8 arasında olmalı.",
+        "healthy": "healthy",
+        "winner_left": "Ayrilan oyuncu",
+    },
+    "en": {
+        "room_not_found": "Room not found.",
+        "lobby_full": "The lobby is full. A maximum of {max_players} players can join.",
+        "host_only": "Only the host can perform this action.",
+        "join_request_not_found": "Join request not found.",
+        "host_cannot_kick_self": "The host cannot kick themselves.",
+        "player_not_found": "Player not found in this room.",
+        "api_not_found": "API endpoint not found.",
+        "server_error": "An internal server error occurred.",
+        "not_in_room": "You are not part of this room.",
+        "player_id_required": "Player ID is required.",
+        "room_code_required": "Room code is required.",
+        "join_request_sent": "Your join request has been sent to the host.",
+        "need_two_players": "At least 2 players are required to start the game.",
+        "restart_before_finish": "You cannot restart before the tournament ends.",
+        "game_not_playing": "The game is not currently active.",
+        "not_your_turn": "It is not your turn.",
+        "invalid_tile": "Invalid box selection.",
+        "tile_already_open": "This box has already been opened.",
+        "admin_not_configured": "Admin access has not been configured yet.",
+        "admin_forbidden": "You are not allowed to access these stats.",
+        "player_identity_missing": "Player identity could not be found.",
+        "player_name_short": "Player name must be at least 2 characters long.",
+        "player_name_long": "Player name can be at most 20 characters long.",
+        "max_players_invalid": "Player count must be between 2 and 8.",
+        "healthy": "healthy",
+        "winner_left": "Player left",
+    },
+}
 
 
 def now_ts() -> int:
     return int(time.time())
+
+
+def normalize_lang(lang: str) -> str:
+    return "tr" if lang.lower().startswith("tr") else "en"
+
+
+def translate(lang: str, key: str, **kwargs: Any) -> str:
+    template = MESSAGES.get(normalize_lang(lang), MESSAGES["en"]).get(key, key)
+    return template.format(**kwargs)
 
 
 def make_initials(name: str) -> str:
@@ -78,6 +148,11 @@ class Room:
     opening_streak_remaining: int = 0
     pending_next_step_at: int | None = None
     pending_next_step_starter_id: str | None = None
+    turn_started_at: int = field(default_factory=now_ts)
+    pending_join_requests: list[dict[str, Any]] = field(default_factory=list)
+    join_request_statuses: dict[str, dict[str, Any]] = field(default_factory=dict)
+    last_timeout_player_id: str | None = None
+    last_timeout_at: int | None = None
 
     def get_player(self, player_id: str) -> Player | None:
         return next((player for player in self.players if player.player_id == player_id), None)
@@ -105,6 +180,7 @@ class Room:
             self.opening_streak_remaining = 0
             self.pending_next_step_at = None
             self.pending_next_step_starter_id = None
+            self.turn_started_at = now_ts()
             return
         self.current_turn_index %= len(self.players)
         if self.opening_player_id and not self.get_player(self.opening_player_id):
@@ -112,12 +188,58 @@ class Room:
             self.opening_streak_remaining = 0
         if self.pending_next_step_starter_id and not self.get_player(self.pending_next_step_starter_id):
             self.pending_next_step_starter_id = self.players[0].player_id
+        if not self.turn_started_at:
+            self.turn_started_at = now_ts()
 
     def touch_player(self, player_id: str) -> None:
         player = self.get_player(player_id)
         if player:
-            player.last_seen_at = now_ts()
-            self.updated_at = now_ts()
+            timestamp = now_ts()
+            if timestamp - player.last_seen_at >= PLAYER_TOUCH_INTERVAL_SECONDS:
+                player.last_seen_at = timestamp
+                self.updated_at = timestamp
+
+    def get_pending_request(self, player_id: str) -> dict[str, Any] | None:
+        return next((request for request in self.pending_join_requests if request["playerId"] == player_id), None)
+
+    def set_join_request_status(self, player_id: str, status: str) -> None:
+        self.join_request_statuses[player_id] = {
+            "status": status,
+            "updatedAt": now_ts(),
+        }
+
+    def add_join_request(self, player_id: str, player_name: str) -> None:
+        existing_request = self.get_pending_request(player_id)
+        timestamp = now_ts()
+        if existing_request:
+            existing_request["playerName"] = player_name
+            existing_request["requestedAt"] = timestamp
+        else:
+            self.pending_join_requests.append(
+                {
+                    "playerId": player_id,
+                    "playerName": player_name,
+                    "requestedAt": timestamp,
+                }
+            )
+        self.set_join_request_status(player_id, "pending")
+        self.updated_at = timestamp
+
+    def remove_join_request(self, player_id: str) -> None:
+        self.pending_join_requests = [
+            request for request in self.pending_join_requests if request["playerId"] != player_id
+        ]
+
+    def mark_turn_started(self) -> None:
+        self.turn_started_at = now_ts()
+
+    def advance_turn(self) -> None:
+        if not self.players:
+            self.current_turn_index = 0
+            self.turn_started_at = now_ts()
+            return
+        self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
+        self.turn_started_at = now_ts()
 
     def setup_step(self, starter_id: str | None = None) -> None:
         tile_count = self.current_step["tiles"]
@@ -138,6 +260,7 @@ class Room:
         self.opening_streak_remaining = self.current_step["opening_streak"]
         self.pending_next_step_at = None
         self.pending_next_step_starter_id = None
+        self.mark_turn_started()
         self.updated_at = now_ts()
 
     def start_celebration(self, winner_id: str) -> None:
@@ -147,9 +270,20 @@ class Room:
         self.pending_next_step_starter_id = winner_id
         self.opening_player_id = None
         self.opening_streak_remaining = 0
+        self.turn_started_at = 0
         self.updated_at = now_ts()
 
     def advance_if_due(self) -> None:
+        if self.phase == "playing" and self.players and self.turn_started_at:
+            while now_ts() >= self.turn_started_at + TURN_TIMEOUT_SECONDS and self.phase == "playing" and self.players:
+                timed_out_player_id = self.current_turn_player_id
+                self.last_timeout_player_id = timed_out_player_id
+                self.last_timeout_at = now_ts()
+                self.opening_player_id = None
+                self.opening_streak_remaining = 0
+                self.advance_turn()
+                self.updated_at = now_ts()
+
         if self.phase != "celebrating" or not self.pending_next_step_at:
             return
         if now_ts() < self.pending_next_step_at:
@@ -198,6 +332,7 @@ class Room:
         if player_index is None:
             return
 
+        removed_was_current_turn = self.current_turn_player_id == player_id
         self.players.pop(player_index)
         if not self.players:
             return
@@ -208,8 +343,11 @@ class Room:
         if player_index < self.current_turn_index:
             self.current_turn_index -= 1
 
-        if self.current_turn_player_id == player_id:
+        if removed_was_current_turn:
+            self.opening_player_id = None
+            self.opening_streak_remaining = 0
             self.ensure_valid_turn()
+            self.mark_turn_started()
 
         if self.phase == "playing" and len(self.players) < 2:
             self.phase = "waiting"
@@ -260,9 +398,13 @@ class Room:
             "tileCount": len(self.board),
             "openingPlayerId": self.opening_player_id,
             "openingStreakRemaining": self.opening_streak_remaining,
+            "secondsUntilTurnTimeout": max(0, (self.turn_started_at + TURN_TIMEOUT_SECONDS) - now_ts()) if self.phase == "playing" and self.turn_started_at else 0,
             "stepResults": self.get_step_results(),
             "leaderboard": self.get_leaderboard(),
             "secondsUntilNextStep": max(0, (self.pending_next_step_at or 0) - now_ts()),
+            "pendingJoinRequests": self.pending_join_requests,
+            "lastTimeoutPlayerId": self.last_timeout_player_id,
+            "lastTimeoutAt": self.last_timeout_at,
         }
 
 
@@ -270,11 +412,15 @@ class GameStore:
     def __init__(self, db_path: Path) -> None:
         self.db_path = db_path
         self.lock = threading.Lock()
+        self.last_pruned_at = 0
         self._init_db()
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.db_path)
         connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA journal_mode=WAL")
+        connection.execute("PRAGMA synchronous=NORMAL")
+        connection.execute("PRAGMA busy_timeout=5000")
         return connection
 
     def _init_db(self) -> None:
@@ -320,6 +466,11 @@ class GameStore:
                 "opening_streak_remaining": room.opening_streak_remaining,
                 "pending_next_step_at": room.pending_next_step_at,
                 "pending_next_step_starter_id": room.pending_next_step_starter_id,
+                "turn_started_at": room.turn_started_at,
+                "pending_join_requests": room.pending_join_requests,
+                "join_request_statuses": room.join_request_statuses,
+                "last_timeout_player_id": room.last_timeout_player_id,
+                "last_timeout_at": room.last_timeout_at,
             }
         )
 
@@ -352,6 +503,11 @@ class GameStore:
             opening_streak_remaining=raw.get("opening_streak_remaining", 0),
             pending_next_step_at=raw.get("pending_next_step_at"),
             pending_next_step_starter_id=raw.get("pending_next_step_starter_id"),
+            turn_started_at=raw.get("turn_started_at", now_ts()),
+            pending_join_requests=raw.get("pending_join_requests", []),
+            join_request_statuses=raw.get("join_request_statuses", {}),
+            last_timeout_player_id=raw.get("last_timeout_player_id"),
+            last_timeout_at=raw.get("last_timeout_at"),
         )
 
         if not room.board:
@@ -372,6 +528,8 @@ class GameStore:
         )
 
     def prune(self) -> None:
+        if now_ts() - self.last_pruned_at < PRUNE_INTERVAL_SECONDS:
+            return
         with self.lock, self._connect() as connection:
             rows = connection.execute("SELECT code, payload FROM rooms").fetchall()
             cutoff = now_ts() - ROOM_TTL_SECONDS
@@ -384,6 +542,7 @@ class GameStore:
                 else:
                     self._save_room(connection, room)
             connection.commit()
+        self.last_pruned_at = now_ts()
 
     def get_live_stats(self) -> dict[str, Any]:
         with self.lock, self._connect() as connection:
@@ -481,16 +640,76 @@ class GameStore:
         else:
             if len(room.players) >= room.max_players:
                 raise ValueError(f"Lobi dolu. Maksimum {room.max_players} oyuncu katılabilir.")
-            if room.phase == "playing":
-                raise ValueError("Oyun basladigi icin bu tura yeni oyuncu katilamaz.")
-            room.players.append(Player(player_id=player_id, name=player_name, joined_at=timestamp, last_seen_at=timestamp))
+            if room.phase == "waiting":
+                room.players.append(Player(player_id=player_id, name=player_name, joined_at=timestamp, last_seen_at=timestamp))
+                room.set_join_request_status(player_id, "approved")
+            else:
+                room.add_join_request(player_id, player_name)
 
+        self.update_room(room)
+        return room
+
+    def get_join_request_status(self, room_code: str, player_id: str) -> tuple[str, Room]:
+        room = self.get_room(room_code)
+        if room.get_player(player_id):
+            return "approved", room
+        if room.get_pending_request(player_id):
+            return "pending", room
+        return room.join_request_statuses.get(player_id, {}).get("status", "missing"), room
+
+    def approve_join_request(self, room_code: str, host_id: str, player_id: str) -> Room:
+        room = self.get_room(room_code)
+        if room.host_id != host_id:
+            raise ValueError("Bu islemi sadece oda sahibi yapabilir.")
+        request = room.get_pending_request(player_id)
+        if not request:
+            raise ValueError("Katilim istegi bulunamadi.")
+        if len(room.players) >= room.max_players:
+            raise ValueError(f"Lobi dolu. Maksimum {room.max_players} oyuncu katılabilir.")
+
+        room.players.append(
+            Player(
+                player_id=request["playerId"],
+                name=request["playerName"],
+                joined_at=now_ts(),
+                last_seen_at=now_ts(),
+            )
+        )
+        room.remove_join_request(player_id)
+        room.set_join_request_status(player_id, "approved")
+        self.update_room(room)
+        return room
+
+    def reject_join_request(self, room_code: str, host_id: str, player_id: str) -> Room:
+        room = self.get_room(room_code)
+        if room.host_id != host_id:
+            raise ValueError("Bu islemi sadece oda sahibi yapabilir.")
+        if not room.get_pending_request(player_id):
+            raise ValueError("Katilim istegi bulunamadi.")
+        room.remove_join_request(player_id)
+        room.set_join_request_status(player_id, "rejected")
+        self.update_room(room)
+        return room
+
+    def kick_player(self, room_code: str, host_id: str, player_id: str) -> Room:
+        room = self.get_room(room_code)
+        if room.host_id != host_id:
+            raise ValueError("Bu islemi sadece oda sahibi yapabilir.")
+        if room.host_id == player_id:
+            raise ValueError("Oda sahibi kendini oyundan atamaz.")
+        if not room.get_player(player_id):
+            raise ValueError("Oyuncu odada bulunamadi.")
+        room.remove_player(player_id)
+        room.remove_join_request(player_id)
+        room.set_join_request_status(player_id, "kicked")
         self.update_room(room)
         return room
 
     def leave_room(self, room_code: str, player_id: str) -> None:
         room = self.get_room(room_code)
         room.remove_player(player_id)
+        room.remove_join_request(player_id)
+        room.set_join_request_status(player_id, "left")
         with self.lock, self._connect() as connection:
             if not room.players:
                 connection.execute("DELETE FROM rooms WHERE code = ?", (room.code,))
@@ -539,7 +758,7 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         store.prune()
 
         if parsed.path == "/api/health":
-            return json_response(self, HTTPStatus.OK, {"ok": True, "status": "healthy"})
+            return json_response(self, HTTPStatus.OK, {"ok": True, "status": translate(self.current_lang, "healthy")})
 
         if parsed.path == "/api/stats":
             try:
@@ -555,6 +774,12 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
                     HTTPStatus.SERVICE_UNAVAILABLE,
                     "<!DOCTYPE html><html lang='tr'><meta charset='utf-8'><title>Admin Kapalı</title><body><p>ADMIN_TOKEN tanımlanmadığı için admin görünümü devre dışı.</p></body></html>",
                 )
+
+        if parsed.path.endswith("/join-status"):
+            try:
+                return self.handle_join_status(parsed.path, parse_qs(parsed.query))
+            except ValueError as error:
+                return json_response(self, HTTPStatus.BAD_REQUEST, {"ok": False, "error": str(error)})
 
         if parsed.path.startswith("/api/rooms/"):
             try:
@@ -576,6 +801,12 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
                 return self.handle_create_room()
             if parsed.path == "/api/rooms/join":
                 return self.handle_join_room()
+            if parsed.path.endswith("/kick"):
+                return self.handle_kick_player(parsed.path)
+            if parsed.path.endswith("/requests/approve"):
+                return self.handle_approve_join_request(parsed.path)
+            if parsed.path.endswith("/requests/reject"):
+                return self.handle_reject_join_request(parsed.path)
             if parsed.path.endswith("/start"):
                 return self.handle_start_room(parsed.path)
             if parsed.path.endswith("/restart"):
@@ -584,11 +815,11 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
                 return self.handle_tile_click(parsed.path)
             if parsed.path.endswith("/leave"):
                 return self.handle_leave_room(parsed.path)
-            json_response(self, HTTPStatus.NOT_FOUND, {"ok": False, "error": "API bulunamadi."})
+            json_response(self, HTTPStatus.NOT_FOUND, {"ok": False, "error": translate(self.current_lang, "api_not_found")})
         except ValueError as error:
             json_response(self, HTTPStatus.BAD_REQUEST, {"ok": False, "error": str(error)})
         except Exception:
-            json_response(self, HTTPStatus.INTERNAL_SERVER_ERROR, {"ok": False, "error": "Sunucuda bir hata olustu."})
+            json_response(self, HTTPStatus.INTERNAL_SERVER_ERROR, {"ok": False, "error": translate(self.current_lang, "server_error")})
 
     def handle_get_room(self, path: str, query: dict[str, list[str]]) -> None:
         room_code = path.removeprefix("/api/rooms/").upper()
@@ -596,10 +827,23 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         room = store.get_room(room_code)
         room.advance_if_due()
         if not room.get_player(player_id):
-            raise ValueError("Bu odada yer almiyorsun.")
+            raise ValueError(translate(self.current_lang, "not_in_room"))
         room.touch_player(player_id)
         store.update_room(room)
         json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
+
+    def handle_join_status(self, path: str, query: dict[str, list[str]]) -> None:
+        room_code = path.split("/")[3].upper()
+        player_id = (query.get("playerId") or [""])[0].strip()
+        if not player_id:
+            raise ValueError(translate(self.current_lang, "player_id_required"))
+        status, room = store.get_join_request_status(room_code, player_id)
+        payload: dict[str, Any] = {"ok": True, "status": status}
+        if status == "approved":
+            room.touch_player(player_id)
+            store.update_room(room)
+            payload["room"] = room.to_payload()
+        json_response(self, HTTPStatus.OK, payload)
 
     def handle_create_room(self) -> None:
         payload = read_json(self)
@@ -618,9 +862,20 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         room_code = str(payload.get("roomCode", "")).strip().upper()
         self.validate_player(player_id, player_name)
         if not room_code:
-            raise ValueError("Oda kodu gerekli.")
+            raise ValueError(translate(self.current_lang, "room_code_required"))
         room = store.join_room(room_code, player_id, player_name)
-        json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
+        if room.get_player(player_id):
+            return json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
+        return json_response(
+            self,
+            HTTPStatus.OK,
+            {
+                "ok": True,
+                "pendingApproval": True,
+                "roomCode": room_code,
+                "message": translate(self.current_lang, "join_request_sent"),
+            },
+        )
 
     def handle_start_room(self, path: str) -> None:
         room_code = path.split("/")[3].upper()
@@ -630,7 +885,7 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         room.advance_if_due()
         self.assert_host(room, player_id)
         if len(room.players) < 2:
-            raise ValueError("Oyunu baslatmak icin en az 2 oyuncu gerekli.")
+            raise ValueError(translate(self.current_lang, "need_two_players"))
         for player in room.players:
             player.step_wins = 0
         room.phase = "playing"
@@ -648,7 +903,7 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         room.advance_if_due()
         self.assert_host(room, player_id)
         if room.phase != "finished":
-            raise ValueError("Turnuva bitmeden yeniden baslatilamaz.")
+            raise ValueError(translate(self.current_lang, "restart_before_finish"))
         for player in room.players:
             player.step_wins = 0
         room.phase = "playing"
@@ -668,17 +923,17 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         room.advance_if_due()
         player = room.get_player(player_id)
         if not player:
-            raise ValueError("Oyuncu odada bulunamadi.")
+            raise ValueError(translate(self.current_lang, "player_not_found"))
         if room.phase != "playing":
-            raise ValueError("Oyun su an oynanmiyor.")
+            raise ValueError(translate(self.current_lang, "game_not_playing"))
         if room.current_turn_player_id != player_id:
-            raise ValueError("Su an sira sende degil.")
+            raise ValueError(translate(self.current_lang, "not_your_turn"))
         if tile_index < 0 or tile_index >= len(room.board):
-            raise ValueError("Gecersiz kutu secimi.")
+            raise ValueError(translate(self.current_lang, "invalid_tile"))
 
         tile = room.board[tile_index]
         if tile["state"] != "hidden":
-            raise ValueError("Bu kutu zaten acildi.")
+            raise ValueError(translate(self.current_lang, "tile_already_open"))
 
         room.touch_player(player_id)
         is_winner = tile_index == room.winning_index
@@ -694,10 +949,11 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         else:
             if room.opening_player_id == player_id and room.opening_streak_remaining > 1:
                 room.opening_streak_remaining -= 1
+                room.mark_turn_started()
             else:
                 room.opening_streak_remaining = 0
                 room.opening_player_id = None
-                room.current_turn_index = (room.current_turn_index + 1) % len(room.players)
+                room.advance_turn()
 
         store.update_room(room)
         json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
@@ -709,30 +965,59 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         store.leave_room(room_code, player_id)
         json_response(self, HTTPStatus.OK, {"ok": True})
 
+    def handle_kick_player(self, path: str) -> None:
+        room_code = path.split("/")[3].upper()
+        payload = read_json(self)
+        host_id = str(payload.get("playerId", "")).strip()
+        target_player_id = str(payload.get("targetPlayerId", "")).strip()
+        room = store.kick_player(room_code, host_id, target_player_id)
+        json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
+
+    def handle_approve_join_request(self, path: str) -> None:
+        room_code = path.split("/")[3].upper()
+        payload = read_json(self)
+        host_id = str(payload.get("playerId", "")).strip()
+        target_player_id = str(payload.get("targetPlayerId", "")).strip()
+        room = store.approve_join_request(room_code, host_id, target_player_id)
+        json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
+
+    def handle_reject_join_request(self, path: str) -> None:
+        room_code = path.split("/")[3].upper()
+        payload = read_json(self)
+        host_id = str(payload.get("playerId", "")).strip()
+        target_player_id = str(payload.get("targetPlayerId", "")).strip()
+        room = store.reject_join_request(room_code, host_id, target_player_id)
+        json_response(self, HTTPStatus.OK, {"ok": True, "room": room.to_payload()})
+
     def log_message(self, format: str, *args: Any) -> None:
         print(f"[server] {self.address_string()} - {format % args}")
 
     def assert_admin_access(self) -> None:
         if not ADMIN_TOKEN:
-            raise ValueError("Admin erişimi henüz yapılandırılmadı.")
+            raise ValueError(translate(self.current_lang, "admin_not_configured"))
 
         token = self.headers.get("X-Admin-Token", "").strip()
         if token != ADMIN_TOKEN:
-            raise ValueError("Bu istatistik ekranına erişim iznin yok.")
+            raise ValueError(translate(self.current_lang, "admin_forbidden"))
+
+    @property
+    def current_lang(self) -> str:
+        requested = self.headers.get("X-Language") or self.headers.get("Accept-Language") or "en"
+        return normalize_lang(requested)
 
     @staticmethod
     def validate_player(player_id: str, player_name: str) -> None:
         if not player_id:
-            raise ValueError("Oyuncu kimliği bulunamadı.")
+            raise ValueError(translate("tr", "player_identity_missing"))
         if len(player_name) < 2:
-            raise ValueError("Oyuncu adı en az 2 karakter olmalı.")
+            raise ValueError(translate("tr", "player_name_short"))
         if len(player_name) > 20:
-            raise ValueError("Oyuncu adı en fazla 20 karakter olmalı.")
+            raise ValueError(translate("tr", "player_name_long"))
 
     @staticmethod
     def validate_max_players(max_players: int) -> None:
         if max_players < MIN_PLAYERS or max_players > MAX_PLAYERS:
-            raise ValueError("Oyuncu sayısı 2 ile 8 arasında olmalı.")
+            raise ValueError(translate("tr", "max_players_invalid"))
 
     @staticmethod
     def assert_host(room: Room, player_id: str) -> None:

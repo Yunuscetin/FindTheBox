@@ -1,78 +1,136 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-default-lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yeşil Kutuyu Bul</title>
+  <title>Yeşil Kutuyu Bul | Multiplayer Browser Game with Room Code</title>
+  <meta name="description" content="Yeşil Kutuyu Bul is a multiplayer browser game where friends join a room, open boxes in turns, and try to find the hidden green box first. Play on mobile or desktop.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://findthebox.co/">
+  <link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/">
+  <link rel="alternate" hreflang="en" href="https://findthebox.co/en/">
+  <link rel="alternate" hreflang="x-default" href="https://findthebox.co/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Yeşil Kutuyu Bul | Multiplayer Browser Game">
+  <meta property="og:description" content="Create a room, invite friends, and find the hidden green box before anyone else.">
+  <meta property="og:url" content="https://findthebox.co/">
+  <meta property="og:site_name" content="FindTheBox">
+  <meta property="og:locale" content="tr_TR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Yeşil Kutuyu Bul | Multiplayer Browser Game">
+  <meta name="twitter:description" content="Play a fast room-based browser game with friends on desktop or mobile.">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "FindTheBox",
+      "url": "https://findthebox.co/",
+      "inLanguage": ["tr", "en"]
+    }
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <button id="homeBrandButton" class="brand-button" type="button">
-        <p class="eyebrow">Çok Oyunculu Tarayıcı Oyunu</p>
-        <h1>Yeşil Kutuyu Bul</h1>
+        <p id="brandEyebrow" class="eyebrow">Çok Oyunculu Tarayıcı Oyunu</p>
+        <h1 id="brandTitle">Yeşil Kutuyu Bul</h1>
       </button>
-      <div class="profile-chip">
-        <span>Oyuncu</span>
+      <div class="topbar-side">
+        <label class="language-switch">
+          <span id="languageLabel">Dil</span>
+          <select id="languageSelect" class="language-select">
+            <option value="tr">TR</option>
+            <option value="en">EN</option>
+          </select>
+        </label>
+        <div class="profile-chip">
+          <span id="playerBadgeLabel">Oyuncu</span>
         <strong id="playerBadge">-</strong>
+        </div>
       </div>
     </header>
 
     <main class="layout">
       <section id="homeView" class="panel hero-panel view active">
-        <div class="hero-copy">
-          <p class="section-kicker">Lobi tabanlı oyun</p>
-          <h2>Arkadaşlarını davet et, sırayla kutu aç, yeşili bulan kazansın.</h2>
-          <p>
-            Oyun sahibi bir oda kurar, oyuncu sayısını belirler ve arkadaşlarını davet eder.
-            Oyuncular davet linki ya da oda koduyla lobiye katılır. Turnuva başladığında herkes
-            sırayla kutu açar, yeşil kutuyu bulan oyuncu o turu kazanır ve bir sonraki turda avantaj
-            elde eder.
-          </p>
+        <aside class="home-sidebar">
+          <div class="player-list-card">
+            <div class="player-list-title">
+              <span id="guidesTitle">Rehberler</span>
+              <strong>SEO</strong>
+            </div>
+            <ul class="players-list">
+              <li class="compact"><a id="guidePrimary" href="/tr/nasil-oynanir/">Yeşil Kutuyu Bul nasıl oynanır?</a></li>
+              <li class="compact"><a id="guideSecondary" href="/tr/arkadaslarla-browser-oyunu/">Arkadaşlarla browser oyunu</a></li>
+            </ul>
+          </div>
 
-          <div class="hero-rules">
-            <div class="hero-rule-card">
-              <strong>Oyun Akışı</strong>
-              <p>Toplam 5 tur vardır. Her turda kutu sayısı azalır ve oyun daha zor hale gelir.</p>
-            </div>
-            <div class="hero-rule-card">
-              <strong>Tur 1</strong>
-              <p>100 kutu vardır. Herkes sırayla 1 kutu açar. Yeşili bulan ilk turu kazanır.</p>
-            </div>
-            <div class="hero-rule-card">
-              <strong>Tur 2</strong>
-              <p>80 kutu vardır. 1. turu kazanan oyuncu ilk başlar ve arka arkaya 5 kutu açar.</p>
-            </div>
-            <div class="hero-rule-card">
-              <strong>Tur 3</strong>
-              <p>60 kutu vardır. 2. turu kazanan oyuncu ilk başlar ve 5 kutu açma hakkı kazanır.</p>
-            </div>
-            <div class="hero-rule-card">
-              <strong>Tur 4</strong>
-              <p>50 kutu vardır. 3. turu kazanan oyuncu ilk başlar ve yine 5 kutu açar.</p>
-            </div>
-            <div class="hero-rule-card">
-              <strong>Tur 5</strong>
-              <p>40 kutu vardır. 4. turu kazanan oyuncu ilk başlar, bu kez 3 kutu açar.</p>
-            </div>
-            <div class="hero-rule-card">
-              <strong>Liderlik</strong>
-              <p>Turnuva sonunda en çok tur kazanan oyuncu lider olur. Eşitlik varsa liderlik paylaşılır.</p>
+          <div class="panel-note">
+            <strong id="sidebarNoteTitle">Oyun Hakkında</strong>
+            <p id="sidebarNoteText">Önce rehberlere göz atabilir, sonra oda kurup hemen oyuna başlayabilirsin.</p>
+          </div>
+        </aside>
+
+        <div class="hero-main">
+          <div class="hero-copy">
+            <p id="heroKicker" class="section-kicker">Lobi tabanlı oyun</p>
+            <h2 id="heroTitle">Arkadaşlarını davet et, sırayla kutu aç, yeşili bulan kazansın.</h2>
+            <p id="heroDescription">
+              Oyun sahibi bir oda kurar, oyuncu sayısını belirler ve arkadaşlarını davet eder.
+              Oyuncular davet linki ya da oda koduyla lobiye katılır. Turnuva başladığında herkes
+              sırayla kutu açar, yeşil kutuyu bulan oyuncu o turu kazanır ve bir sonraki turda avantaj
+              elde eder.
+            </p>
+
+            <div class="hero-rules">
+              <div class="hero-rule-card">
+                <strong id="heroRuleFlowTitle">Oyun Akışı</strong>
+                <p id="heroRuleFlowText">Toplam 5 tur vardır. Her turda kutu sayısı azalır ve oyun daha zor hale gelir.</p>
+              </div>
+              <div class="hero-rule-card">
+                <strong id="heroRule1Title">Tur 1</strong>
+                <p id="heroRule1Text">100 kutu vardır. Herkes sırayla 1 kutu açar. Yeşili bulan ilk turu kazanır.</p>
+              </div>
+              <div class="hero-rule-card">
+                <strong id="heroRule2Title">Tur 2</strong>
+                <p id="heroRule2Text">80 kutu vardır. 1. turu kazanan oyuncu ilk başlar ve arka arkaya 5 kutu açar.</p>
+              </div>
+              <div class="hero-rule-card">
+                <strong id="heroRule3Title">Tur 3</strong>
+                <p id="heroRule3Text">60 kutu vardır. 2. turu kazanan oyuncu ilk başlar ve 5 kutu açma hakkı kazanır.</p>
+              </div>
+              <div class="hero-rule-card">
+                <strong id="heroRule4Title">Tur 4</strong>
+                <p id="heroRule4Text">50 kutu vardır. 3. turu kazanan oyuncu ilk başlar ve yine 5 kutu açar.</p>
+              </div>
+              <div class="hero-rule-card">
+                <strong id="heroRule5Title">Tur 5</strong>
+                <p id="heroRule5Text">40 kutu vardır. 4. turu kazanan oyuncu ilk başlar, bu kez 3 kutu açar.</p>
+              </div>
+              <div class="hero-rule-card">
+                <strong id="heroRuleLeaderTitle">Liderlik</strong>
+                <p id="heroRuleLeaderText">Turnuva sonunda en çok tur kazanan oyuncu lider olur. Eşitlik varsa liderlik paylaşılır.</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="hero-actions">
-          <button id="createRoomButton" class="primary-button" type="button">Oyun Kur</button>
+          <div class="hero-actions">
+            <button id="createRoomButton" class="primary-button" type="button">Oyun Kur</button>
 
-          <form id="joinRoomForm" class="join-card">
-            <label for="roomCodeInput">Oda kodu ile katıl</label>
-            <div class="join-row">
-              <input id="roomCodeInput" name="roomCode" type="text" maxlength="6" placeholder="Örn. A7K2P9" autocomplete="off">
-              <button class="secondary-button" type="submit">Oyuna Katil</button>
+            <form id="joinRoomForm" class="join-card">
+              <label id="joinRoomLabel" for="roomCodeInput">Oda kodu ile katıl</label>
+              <div class="join-row">
+                <input id="roomCodeInput" name="roomCode" type="text" maxlength="6" placeholder="Örn. A7K2P9" autocomplete="off">
+                <button class="secondary-button" type="submit">Oyuna Katil</button>
+              </div>
+            </form>
+
+            <div id="joinRequestNotice" class="panel-note join-request-notice hidden">
+              <strong>Katılım isteği gönderildi</strong>
+              <p id="joinRequestNoticeText">Oda sahibinin onayı bekleniyor. Onay gelirse otomatik olarak odaya alınacaksın.</p>
             </div>
-          </form>
+          </div>
         </div>
       </section>
 
@@ -80,15 +138,15 @@
         <div class="grid-layout">
           <aside class="sidebar">
             <div class="room-header">
-              <p class="section-kicker">Oda Bilgileri</p>
+              <p id="roomInfoKicker" class="section-kicker">Oda Bilgileri</p>
               <div class="room-code-wrap">
-                <span>Oda Kodu</span>
+                <span id="roomCodeTitle">Oda Kodu</span>
                 <strong id="roomCodeLabel">------</strong>
               </div>
             </div>
 
             <div class="invite-box">
-              <label for="inviteLinkInput">Davet Linki</label>
+              <label id="inviteLinkLabel" for="inviteLinkInput">Davet Linki</label>
               <div class="invite-row">
                 <input id="inviteLinkInput" type="text" readonly>
                 <button id="copyInviteButton" class="ghost-button" type="button">Kopyala</button>
@@ -97,22 +155,30 @@
 
             <div class="player-list-card">
               <div class="player-list-title">
-                <span>Oyuncular</span>
+                <span id="playersTitle">Oyuncular</span>
                 <strong id="playerCountLabel">0/4</strong>
               </div>
               <ul id="playersList" class="players-list"></ul>
             </div>
 
+            <div id="pendingRequestsCard" class="player-list-card hidden">
+              <div class="player-list-title">
+                <span id="pendingRequestsTitle">Katılım İstekleri</span>
+                <strong id="pendingRequestsCountLabel">0</strong>
+              </div>
+              <ul id="pendingRequestsList" class="players-list"></ul>
+            </div>
+
             <div class="player-list-card">
               <div class="player-list-title">
-                <span>Lider Tablosu</span>
+                <span id="leaderboardTitle">Lider Tablosu</span>
                 <strong id="leaderLabel">-</strong>
               </div>
               <ul id="leaderboardList" class="players-list"></ul>
             </div>
 
             <div class="panel-note">
-              <strong>Tur Kuralı</strong>
+              <strong id="turnRuleTitle">Tur Kuralı</strong>
               <p id="stepRuleText">1. turda herkes sırayla 1 kutu açar. Sonraki turlarda kazanan oyuncu bonus açılış hakkıyla başlar.</p>
             </div>
           </aside>
@@ -120,7 +186,7 @@
           <section class="game-panel">
             <div class="game-toolbar">
               <div class="status-stack">
-                <p class="section-kicker">Oyun Durumu</p>
+                <p id="gameStatusKicker" class="section-kicker">Oyun Durumu</p>
                 <h2 id="statusHeading">Lobi hazırlanıyor</h2>
                 <p id="statusText">Bir oda kur veya katıl, sonra oyun sahibinin başlatmasını bekle.</p>
               </div>
@@ -133,16 +199,20 @@
 
             <div class="turn-strip">
               <div class="turn-card">
-                <span>Sıra</span>
+                <span id="turnTitle">Sıra</span>
                 <strong id="turnLabel">Bekleniyor</strong>
               </div>
               <div class="turn-card">
-                <span>Tur</span>
+                <span id="roundTitle">Tur</span>
                 <strong id="stepLabel">1/5</strong>
               </div>
               <div class="turn-card">
-                <span>Bonus Hak</span>
+                <span id="bonusTitle">Bonus Hak</span>
                 <strong id="bonusLabel">-</strong>
+              </div>
+              <div class="turn-card">
+                <span id="timerTitle">Süre</span>
+                <strong id="turnTimerLabel">-</strong>
               </div>
             </div>
 
@@ -151,7 +221,7 @@
             <div class="results-strip">
               <div class="player-list-card">
                 <div class="player-list-title">
-                  <span>Tur Sonuçları</span>
+                  <span id="turnResultsTitle">Tur Sonuçları</span>
                   <strong id="resultsCountLabel">0/5</strong>
                 </div>
                 <ul id="stepResultsList" class="players-list"></ul>
@@ -165,20 +235,20 @@
 
   <dialog id="nameDialog" class="dialog-card">
     <form id="nameForm" method="dialog" class="dialog-form">
-      <p class="section-kicker">İlk Giriş</p>
-      <h2>Oyuncu adını yaz</h2>
-      <p>Bu isim kutuların üstünde görünecek ve lobide seni temsil edecek.</p>
+      <p id="nameDialogKicker" class="section-kicker">İlk Giriş</p>
+      <h2 id="nameDialogTitle">Oyuncu adını yaz</h2>
+      <p id="nameDialogText">Bu isim kutuların üstünde görünecek ve lobide seni temsil edecek.</p>
       <input id="nameInput" name="playerName" type="text" maxlength="20" placeholder="İsminiz" autocomplete="name" required>
-      <button class="primary-button" type="submit">Devam Et</button>
+      <button id="nameDialogSubmit" class="primary-button" type="submit">Devam Et</button>
     </form>
   </dialog>
 
   <dialog id="createRoomDialog" class="dialog-card">
     <form id="createRoomForm" method="dialog" class="dialog-form">
-      <p class="section-kicker">Oda Ayarları</p>
-      <h2>Oyuncu sayısını seç</h2>
-      <p>Lobi oluşturulurken maksimum oyuncu sayısını belirleyebilirsin.</p>
-      <label class="select-label" for="maxPlayersSelect">Maksimum oyuncu</label>
+      <p id="createRoomDialogKicker" class="section-kicker">Oda Ayarları</p>
+      <h2 id="createRoomDialogTitle">Oyuncu sayısını seç</h2>
+      <p id="createRoomDialogText">Lobi oluşturulurken maksimum oyuncu sayısını belirleyebilirsin.</p>
+      <label id="maxPlayersLabel" class="select-label" for="maxPlayersSelect">Maksimum oyuncu</label>
       <select id="maxPlayersSelect" class="select-input" name="maxPlayers">
         <option value="2">2 Oyuncu</option>
         <option value="3">3 Oyuncu</option>
@@ -189,7 +259,7 @@
         <option value="8" selected>8 Oyuncu</option>
       </select>
       <div class="dialog-actions">
-        <button class="primary-button" type="submit">Odayı Kur</button>
+        <button id="createRoomSubmit" class="primary-button" type="submit">Odayı Kur</button>
         <button id="cancelCreateRoomButton" class="ghost-button" type="button">Vazgeç</button>
       </div>
     </form>
@@ -197,7 +267,7 @@
 
   <dialog id="restartDialog" class="dialog-card">
     <div class="dialog-form">
-      <p class="section-kicker">Tur Bitti</p>
+      <p id="restartDialogKicker" class="section-kicker">Tur Bitti</p>
       <h2 id="restartTitle">Yeni turnuva başlatılsın mı?</h2>
       <p id="restartText">Oda sahibi olarak aynı oyuncularla 5 turluk yeni bir seri açabilirsin.</p>
       <div class="dialog-actions">
@@ -216,7 +286,7 @@
       <span class="burst burst-d"></span>
     </div>
     <div class="celebration-card">
-      <p class="section-kicker">Tur Kazanıldı</p>
+      <p id="celebrationKicker" class="section-kicker">Tur Kazanıldı</p>
       <h2 id="celebrationTitle">Kazanan belli oldu</h2>
       <p id="celebrationText">Yeni tur 5 saniye içinde başlayacak.</p>
     </div>
