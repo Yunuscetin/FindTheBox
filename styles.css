@@ -165,6 +165,35 @@ h1 {
   margin-top: 16px;
 }
 
+.admin-history-grid {
+  margin-top: 16px;
+}
+
+.admin-history-table-wrap {
+  overflow-x: auto;
+  margin-top: 14px;
+}
+
+.admin-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.96rem;
+}
+
+.admin-history-table th,
+.admin-history-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(39, 77, 50, 0.1);
+  text-align: left;
+}
+
+.admin-history-table th {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .admin-gate {
   margin-bottom: 16px;
 }

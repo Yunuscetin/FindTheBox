@@ -5,11 +5,14 @@ const statsElements = {
   onlinePlayersValue: document.getElementById("onlinePlayersValue"),
   playerCapacityValue: document.getElementById("playerCapacityValue"),
   totalRoomsValue: document.getElementById("totalRoomsValue"),
+  roomsLast10DaysValue: document.getElementById("roomsLast10DaysValue"),
+  playersLast10DaysValue: document.getElementById("playersLast10DaysValue"),
   waitingRoomsValue: document.getElementById("waitingRoomsValue"),
   playingRoomsValue: document.getElementById("playingRoomsValue"),
   celebratingRoomsValue: document.getElementById("celebratingRoomsValue"),
   finishedRoomsValue: document.getElementById("finishedRoomsValue"),
-  lastUpdatedValue: document.getElementById("lastUpdatedValue")
+  lastUpdatedValue: document.getElementById("lastUpdatedValue"),
+  historyTableBody: document.getElementById("historyTableBody")
 };
 
 const ADMIN_STORAGE_KEY = "findthebox-admin-token";
@@ -52,11 +55,36 @@ function renderStats(stats) {
   statsElements.onlinePlayersValue.textContent = String(stats.players.online);
   statsElements.playerCapacityValue.textContent = `Kapasite: ${stats.players.capacity}`;
   statsElements.totalRoomsValue.textContent = String(stats.rooms.total);
+  statsElements.roomsLast10DaysValue.textContent = String(stats.history?.summary?.roomsCreated || 0);
+  statsElements.playersLast10DaysValue.textContent = String(stats.history?.summary?.playersSeen || 0);
   statsElements.waitingRoomsValue.textContent = String(stats.rooms.waiting);
   statsElements.playingRoomsValue.textContent = String(stats.rooms.playing);
   statsElements.celebratingRoomsValue.textContent = String(stats.rooms.celebrating);
   statsElements.finishedRoomsValue.textContent = String(stats.rooms.finished);
   statsElements.lastUpdatedValue.textContent = formatUpdatedAt(stats.updatedAt);
+  renderHistory(stats.history?.days || []);
+}
+
+function renderHistory(days) {
+  if (!days.length) {
+    statsElements.historyTableBody.innerHTML = `
+      <tr>
+        <td colspan="4">Henüz veri alınmadı.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  statsElements.historyTableBody.innerHTML = days
+    .map((day) => `
+      <tr>
+        <td>${day.date}</td>
+        <td>${day.roomsCreated}</td>
+        <td>${day.joinRequests}</td>
+        <td>${day.playersSeen}</td>
+      </tr>
+    `)
+    .join("");
 }
 
 async function refreshStats() {

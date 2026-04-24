@@ -44,6 +44,19 @@
         </div>
       </section>
 
+      <section class="admin-summary admin-summary-history">
+        <div class="admin-card">
+          <span>Son 10 Günde Açılan Oda</span>
+          <strong id="roomsLast10DaysValue">0</strong>
+          <small>Günlük açılan oda toplamı</small>
+        </div>
+        <div class="admin-card">
+          <span>Son 10 Günde Gelen Oyuncu</span>
+          <strong id="playersLast10DaysValue">0</strong>
+          <small>Gün bazında görülen benzersiz oyuncular</small>
+        </div>
+      </section>
+
       <section class="admin-breakdown">
         <div class="player-list-card">
           <div class="player-list-title">
@@ -61,6 +74,32 @@
         <div class="panel-note">
           <strong>Nasıl kullanılır?</strong>
           <p>Bu sayfa 10 saniyede bir kendini yeniler. Token girdikten sonra tarayıcıdan <code>/admin.html</code> adresi üzerinden anlık oyuncu ve oda sayısını takip edebilirsin.</p>
+        </div>
+      </section>
+
+      <section class="admin-history-grid">
+        <div class="player-list-card">
+          <div class="player-list-title">
+            <span>Son 10 Gün</span>
+            <strong>Trend</strong>
+          </div>
+          <div class="admin-history-table-wrap">
+            <table class="admin-history-table">
+              <thead>
+                <tr>
+                  <th>Gün</th>
+                  <th>Açılan Oda</th>
+                  <th>Katılım İsteği</th>
+                  <th>Gelen Oyuncu</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr>
+                  <td colspan="4">Henüz veri alınmadı.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>

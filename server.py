@@ -7,6 +7,7 @@ import sqlite3
 import string
 import threading
 import time
+from collections import defaultdict
 from dataclasses import dataclass, field
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -28,6 +29,10 @@ PLAYER_TTL_SECONDS = 60 * 20
 TURN_TIMEOUT_SECONDS = 10
 PLAYER_TOUCH_INTERVAL_SECONDS = 4
 PRUNE_INTERVAL_SECONDS = 30
+CREATE_ROOM_LIMIT = (6, 10)
+JOIN_ROOM_LIMIT = (10, 10)
+CLICK_WINDOW_LIMIT = (18, 5)
+CLICK_COOLDOWN_SECONDS = 0.35
 STATIC_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("GAME_DB_PATH", str(STATIC_DIR / "game.db")))
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "").strip()
@@ -59,6 +64,9 @@ MESSAGES = {
         "max_players_invalid": "Oyuncu sayısı 2 ile 8 arasında olmalı.",
         "healthy": "healthy",
         "winner_left": "Ayrilan oyuncu",
+        "create_room_rate_limited": "Cok hizli oda olusturuyorsun. Lutfen kisa bir sure bekle.",
+        "join_room_rate_limited": "Cok hizli katilim istegi gonderiyorsun. Lutfen kisa bir sure bekle.",
+        "click_rate_limited": "Cok hizli tiklaniyor. Lutfen bir an bekleyip tekrar dene.",
     },
     "en": {
         "room_not_found": "Room not found.",
@@ -87,6 +95,9 @@ MESSAGES = {
         "max_players_invalid": "Player count must be between 2 and 8.",
         "healthy": "healthy",
         "winner_left": "Player left",
+        "create_room_rate_limited": "You are creating rooms too quickly. Please wait a moment.",
+        "join_room_rate_limited": "You are sending join requests too quickly. Please wait a moment.",
+        "click_rate_limited": "You are clicking too quickly. Please wait a moment and try again.",
     },
 }
 
@@ -114,6 +125,34 @@ def make_initials(name: str) -> str:
 def make_room_code() -> str:
     alphabet = string.ascii_uppercase + string.digits
     return "".join(random.choice(alphabet) for _ in range(6))
+
+
+class RequestRateGuard:
+    def __init__(self) -> None:
+        self.lock = threading.Lock()
+        self.buckets: dict[str, list[float]] = defaultdict(list)
+        self.last_click_at: dict[str, float] = {}
+
+    def hit(self, key: str, limit: int, period_seconds: int) -> bool:
+        current = time.time()
+        cutoff = current - period_seconds
+        with self.lock:
+            bucket = [timestamp for timestamp in self.buckets[key] if timestamp >= cutoff]
+            if len(bucket) >= limit:
+                self.buckets[key] = bucket
+                return False
+            bucket.append(current)
+            self.buckets[key] = bucket
+            return True
+
+    def allow_click(self, player_id: str) -> bool:
+        current = time.time()
+        with self.lock:
+            last_click = self.last_click_at.get(player_id, 0.0)
+            if current - last_click < CLICK_COOLDOWN_SECONDS:
+                return False
+            self.last_click_at[player_id] = current
+        return self.hit(f"click:{player_id}", CLICK_WINDOW_LIMIT[0], CLICK_WINDOW_LIMIT[1])
 
 
 @dataclass
@@ -435,7 +474,34 @@ class GameStore:
                 )
                 """
             )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS room_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event_type TEXT NOT NULL,
+                    room_code TEXT,
+                    player_id TEXT,
+                    created_at INTEGER NOT NULL
+                )
+                """
+            )
             connection.commit()
+
+    def _record_event(
+        self,
+        connection: sqlite3.Connection,
+        event_type: str,
+        room_code: str | None = None,
+        player_id: str | None = None,
+        created_at: int | None = None,
+    ) -> None:
+        connection.execute(
+            """
+            INSERT INTO room_events(event_type, room_code, player_id, created_at)
+            VALUES(?, ?, ?, ?)
+            """,
+            (event_type, room_code, player_id, created_at or now_ts()),
+        )
 
     def _serialize_room(self, room: Room) -> str:
         return json.dumps(
@@ -593,6 +659,70 @@ class GameStore:
             "updatedAt": freshest_update,
         }
 
+    def get_historical_stats(self, days: int = 10) -> dict[str, Any]:
+        current = now_ts()
+        start_of_today = current - (current % 86400)
+        start_at = start_of_today - ((days - 1) * 86400)
+
+        with self.lock, self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT event_type, player_id, created_at
+                FROM room_events
+                WHERE created_at >= ?
+                ORDER BY created_at ASC
+                """,
+                (start_at,),
+            ).fetchall()
+
+        buckets: dict[str, dict[str, Any]] = {}
+        for day_offset in range(days):
+            day_ts = start_at + (day_offset * 86400)
+            day_key = time.strftime("%Y-%m-%d", time.localtime(day_ts))
+            buckets[day_key] = {
+                "date": day_key,
+                "roomsCreated": 0,
+                "joinRequests": 0,
+                "playersSeen": set(),
+            }
+
+        for row in rows:
+            day_key = time.strftime("%Y-%m-%d", time.localtime(row["created_at"]))
+            bucket = buckets.get(day_key)
+            if not bucket:
+                continue
+            if row["event_type"] == "room_created":
+                bucket["roomsCreated"] += 1
+            if row["event_type"] == "join_requested":
+                bucket["joinRequests"] += 1
+            if row["player_id"]:
+                bucket["playersSeen"].add(row["player_id"])
+
+        timeline: list[dict[str, Any]] = []
+        total_rooms_created = 0
+        total_players_seen = 0
+        for day_key in sorted(buckets.keys()):
+            bucket = buckets[day_key]
+            players_seen = len(bucket["playersSeen"])
+            total_rooms_created += bucket["roomsCreated"]
+            total_players_seen += players_seen
+            timeline.append(
+                {
+                    "date": bucket["date"],
+                    "roomsCreated": bucket["roomsCreated"],
+                    "joinRequests": bucket["joinRequests"],
+                    "playersSeen": players_seen,
+                }
+            )
+
+        return {
+            "days": timeline,
+            "summary": {
+                "roomsCreated": total_rooms_created,
+                "playersSeen": total_players_seen,
+            },
+        }
+
     def create_room(self, player_id: str, player_name: str, max_players: int) -> Room:
         with self.lock, self._connect() as connection:
             room_code = make_room_code()
@@ -604,6 +734,7 @@ class GameStore:
             room.players.append(Player(player_id=player_id, name=player_name, joined_at=timestamp, last_seen_at=timestamp))
             room.setup_step()
             self._save_room(connection, room)
+            self._record_event(connection, "room_created", room_code=room.code, player_id=player_id, created_at=timestamp)
             connection.commit()
             return room
 
@@ -633,6 +764,7 @@ class GameStore:
         room = self.get_room(room_code)
         existing_player = room.get_player(player_id)
         timestamp = now_ts()
+        event_type: str | None = None
 
         if existing_player:
             existing_player.name = player_name
@@ -643,10 +775,16 @@ class GameStore:
             if room.phase == "waiting":
                 room.players.append(Player(player_id=player_id, name=player_name, joined_at=timestamp, last_seen_at=timestamp))
                 room.set_join_request_status(player_id, "approved")
+                event_type = "player_joined"
             else:
                 room.add_join_request(player_id, player_name)
+                event_type = "join_requested"
 
         self.update_room(room)
+        if event_type:
+            with self.lock, self._connect() as connection:
+                self._record_event(connection, event_type, room_code=room.code, player_id=player_id, created_at=timestamp)
+                connection.commit()
         return room
 
     def get_join_request_status(self, room_code: str, player_id: str) -> tuple[str, Room]:
@@ -677,6 +815,9 @@ class GameStore:
         )
         room.remove_join_request(player_id)
         room.set_join_request_status(player_id, "approved")
+        with self.lock, self._connect() as connection:
+            self._record_event(connection, "player_joined", room_code=room.code, player_id=player_id, created_at=now_ts())
+            connection.commit()
         self.update_room(room)
         return room
 
@@ -719,6 +860,7 @@ class GameStore:
 
 
 store = GameStore(DB_PATH)
+rate_guard = RequestRateGuard()
 
 
 def json_response(handler: SimpleHTTPRequestHandler, status: HTTPStatus, payload: dict[str, Any]) -> None:
@@ -763,7 +905,13 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         if parsed.path == "/api/stats":
             try:
                 self.assert_admin_access()
-                return json_response(self, HTTPStatus.OK, {"ok": True, "stats": store.get_live_stats()})
+                live_stats = store.get_live_stats()
+                history_stats = store.get_historical_stats(10)
+                return json_response(
+                    self,
+                    HTTPStatus.OK,
+                    {"ok": True, "stats": {**live_stats, "history": history_stats}},
+                )
             except ValueError as error:
                 return json_response(self, HTTPStatus.FORBIDDEN, {"ok": False, "error": str(error)})
 
@@ -850,6 +998,8 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         player_id = str(payload.get("playerId", "")).strip()
         player_name = str(payload.get("playerName", "")).strip()
         max_players = int(payload.get("maxPlayers", 4))
+        if not rate_guard.hit(f"create:{self.client_address[0]}", CREATE_ROOM_LIMIT[0], CREATE_ROOM_LIMIT[1]):
+            raise ValueError(translate(self.current_lang, "create_room_rate_limited"))
         self.validate_player(player_id, player_name)
         self.validate_max_players(max_players)
         room = store.create_room(player_id, player_name, max_players)
@@ -860,6 +1010,12 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         player_id = str(payload.get("playerId", "")).strip()
         player_name = str(payload.get("playerName", "")).strip()
         room_code = str(payload.get("roomCode", "")).strip().upper()
+        if room_code and not rate_guard.hit(
+            f"join:{self.client_address[0]}:{room_code}",
+            JOIN_ROOM_LIMIT[0],
+            JOIN_ROOM_LIMIT[1],
+        ):
+            raise ValueError(translate(self.current_lang, "join_room_rate_limited"))
         self.validate_player(player_id, player_name)
         if not room_code:
             raise ValueError(translate(self.current_lang, "room_code_required"))
@@ -924,6 +1080,8 @@ class GameRequestHandler(SimpleHTTPRequestHandler):
         player = room.get_player(player_id)
         if not player:
             raise ValueError(translate(self.current_lang, "player_not_found"))
+        if not rate_guard.allow_click(player_id):
+            raise ValueError(translate(self.current_lang, "click_rate_limited"))
         if room.phase != "playing":
             raise ValueError(translate(self.current_lang, "game_not_playing"))
         if room.current_turn_player_id != player_id:
