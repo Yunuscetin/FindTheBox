@@ -131,7 +131,7 @@ def _load_historical_stats(db: Session, days: int = 10) -> dict[str, Any]:
 
 
 @router.get("/stats")
-async def stats(x_admin_token: str | None = Header(default=None)) -> JSONResponse | dict[str, Any]:
+async def stats(x_admin_token: str | None = Header(default=None)) -> Any:
     error = _assert_admin_token(x_admin_token)
     if error:
         return JSONResponse(status_code=403, content={"ok": False, "error": error})
