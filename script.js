@@ -129,6 +129,11 @@ const state = {
   room: null,
   pollTimer: null,
   pendingJoinPollTimer: null,
+  socket: null,
+  socketRoomCode: null,
+  socketReconnectTimer: null,
+  socketHeartbeatTimer: null,
+  socketConnected: false,
   restartDialogShownForTournament: false,
   isLeaving: false,
   pendingMove: false,
@@ -146,6 +151,21 @@ if (requestedLanguage === "tr" || requestedLanguage === "en") {
 
 if (!localStorage.getItem(STORAGE_KEYS.language)) {
   state.language = (navigator.language || "en").toLowerCase().startsWith("tr") ? "tr" : "en";
+}
+
+function roomSocketUrl(roomCode) {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const base = `${protocol}//${window.location.host}`;
+
+  if (window.location.protocol !== "http:" && window.location.protocol !== "https:") {
+    return `ws://127.0.0.1:8000/ws/rooms/${encodeURIComponent(roomCode)}?playerId=${encodeURIComponent(state.playerId)}`;
+  }
+
+  if (["127.0.0.1", "localhost"].includes(window.location.hostname) && window.location.port !== "8000") {
+    return `ws://127.0.0.1:8000/ws/rooms/${encodeURIComponent(roomCode)}?playerId=${encodeURIComponent(state.playerId)}`;
+  }
+
+  return `${base}/ws/rooms/${encodeURIComponent(roomCode)}?playerId=${encodeURIComponent(state.playerId)}`;
 }
 
 const translations = {
@@ -457,6 +477,18 @@ async function request(path, options = {}) {
   }
 
   return payload;
+}
+
+function shouldLeaveRoomForError(message) {
+  const text = String(message || "").toLowerCase();
+  return (
+    text.includes("oda bulunamadi") ||
+    text.includes("bu odada yer almiyorsun") ||
+    text.includes("oyuncu odada bulunamadi") ||
+    text.includes("room not found") ||
+    text.includes("you are not part of this room") ||
+    text.includes("player was not found in this room")
+  );
 }
 
 function postJson(path, body) {
@@ -875,6 +907,7 @@ function maybeShowRestartDialog(room) {
 function renderRoom(room) {
   const previousPhase = state.room?.phase;
   state.room = room;
+  state.roomCode = room.code;
   state.pendingMove = false;
   state.pendingApprovalRoomCode = null;
   hideJoinRequestNotice();
@@ -899,6 +932,7 @@ function renderRoom(room) {
   renderStatus(room);
   renderBoard(room);
   maybeShowCelebration(room);
+  connectRoomSocket(room.code);
   setActiveView("room");
   maybeShowRestartDialog(room);
 }
@@ -921,6 +955,122 @@ function clearPendingJoinPoll() {
   }
 }
 
+function clearSocketReconnect() {
+  if (state.socketReconnectTimer) {
+    window.clearTimeout(state.socketReconnectTimer);
+    state.socketReconnectTimer = null;
+  }
+}
+
+function clearSocketHeartbeat() {
+  if (state.socketHeartbeatTimer) {
+    window.clearInterval(state.socketHeartbeatTimer);
+    state.socketHeartbeatTimer = null;
+  }
+}
+
+function disconnectRoomSocket({ intentional = false } = {}) {
+  clearSocketReconnect();
+  clearSocketHeartbeat();
+  state.socketConnected = false;
+  state.socketRoomCode = null;
+
+  if (!state.socket) {
+    return;
+  }
+
+  const socket = state.socket;
+  state.socket = null;
+
+  if (intentional) {
+    socket.onopen = null;
+    socket.onmessage = null;
+    socket.onerror = null;
+    socket.onclose = null;
+  }
+
+  try {
+    socket.close();
+  } catch (error) {
+    return;
+  }
+}
+
+function scheduleSocketReconnect(roomCode) {
+  clearSocketReconnect();
+  state.socketReconnectTimer = window.setTimeout(() => {
+    if (state.roomCode === roomCode) {
+      connectRoomSocket(roomCode);
+    }
+  }, 1500);
+}
+
+function connectRoomSocket(roomCode) {
+  if (!roomCode) {
+    return;
+  }
+
+  if (
+    state.socket &&
+    state.socketRoomCode === roomCode &&
+    (state.socket.readyState === WebSocket.OPEN || state.socket.readyState === WebSocket.CONNECTING)
+  ) {
+    return;
+  }
+
+  disconnectRoomSocket({ intentional: true });
+
+  const socket = new WebSocket(roomSocketUrl(roomCode));
+  state.socket = socket;
+  state.socketRoomCode = roomCode;
+
+  socket.onopen = () => {
+    state.socketConnected = true;
+    clearSocketReconnect();
+    clearSocketHeartbeat();
+    state.socketHeartbeatTimer = window.setInterval(() => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send("ping");
+      }
+    }, 20000);
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const payload = JSON.parse(event.data);
+      if (payload.type === "room_update" && payload.room) {
+        renderRoom(payload.room);
+      }
+    } catch (error) {
+      console.warn("Socket message parse failed", error);
+    }
+  };
+
+  socket.onerror = () => {
+    state.socketConnected = false;
+  };
+
+  socket.onclose = (event) => {
+    clearSocketHeartbeat();
+    state.socketConnected = false;
+    if (state.socket === socket) {
+      state.socket = null;
+    }
+
+    if ([4001, 4003, 4403, 4404].includes(event.code)) {
+      if (event.code === 4003) {
+        showToast("Oda sahibin tarafindan odadan cikarildin.");
+      }
+      leaveRoom({ silent: event.code === 4001 });
+      return;
+    }
+
+    if (state.roomCode === roomCode) {
+      scheduleSocketReconnect(roomCode);
+    }
+  };
+}
+
 function getNextPollDelay(room = state.room) {
   if (!room) {
     return 2000;
@@ -939,6 +1089,10 @@ function getNextPollDelay(room = state.room) {
   }
 
   if (room.phase === "playing") {
+    if (state.socketConnected) {
+      return 12000;
+    }
+
     if (room.currentTurnPlayerId === state.playerId) {
       return 700;
     }
@@ -975,11 +1129,14 @@ async function fetchRoomState() {
     renderRoom(payload.room);
   } catch (error) {
     state.pendingMove = false;
+    if (!state.isLeaving && shouldLeaveRoomForError(error.message)) {
+      showToast(error.message);
+      leaveRoom({ silent: true });
+      return;
+    }
     if (!state.isLeaving) {
       showToast(error.message);
     }
-    leaveRoom({ silent: true });
-    return;
   }
 
   scheduleNextPoll();
@@ -1050,6 +1207,7 @@ async function joinRoom(roomCode) {
   });
 
   if (payload.pendingApproval) {
+    disconnectRoomSocket({ intentional: true });
     clearPoll();
     state.roomCode = null;
     state.pendingApprovalRoomCode = payload.roomCode;
@@ -1108,6 +1266,7 @@ async function notifyLeaveRoom() {
 }
 
 function leaveRoom({ silent = false } = {}) {
+  disconnectRoomSocket({ intentional: true });
   clearPoll();
   clearPendingJoinPoll();
   clearRoomSession(state.roomCode || state.pendingApprovalRoomCode);
@@ -1227,6 +1386,9 @@ function setupEvents() {
     }
 
     if (state.roomCode) {
+      if (!state.socketConnected) {
+        connectRoomSocket(state.roomCode);
+      }
       fetchRoomState();
       return;
     }
@@ -1238,6 +1400,9 @@ function setupEvents() {
 
   window.addEventListener("pageshow", () => {
     if (state.roomCode) {
+      if (!state.socketConnected) {
+        connectRoomSocket(state.roomCode);
+      }
       fetchRoomState();
     } else if (state.pendingApprovalRoomCode) {
       fetchJoinRequestStatus();
