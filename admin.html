@@ -3,31 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FindTheBox Canlı Durum</title>
+  <meta name="robots" content="noindex,nofollow">
+  <title>FindTheBox Kontrol Paneli</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="app-shell admin-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Yönetim Görünümü</p>
-        <h1>Canlı Durum</h1>
+        <p class="eyebrow">Gizli Yonetim Paneli</p>
+        <h1>Canli Durum</h1>
       </div>
-      <a class="ghost-button admin-home-link" href="/">Ana Sayfaya Dön</a>
+      <a class="ghost-button admin-home-link" href="/">Ana Sayfaya Don</a>
     </header>
 
     <main class="panel admin-panel">
       <section class="admin-gate">
         <div class="player-list-card">
           <div class="player-list-title">
-            <span>Admin Erişimi</span>
+            <span>Admin Erisimi</span>
             <strong>Token</strong>
           </div>
           <form id="adminTokenForm" class="admin-token-form">
             <input id="adminTokenInput" type="password" placeholder="Admin token gir" autocomplete="off">
-            <button class="primary-button" type="submit">İstatistikleri Aç</button>
+            <button class="primary-button" type="submit">Istatistikleri Ac</button>
           </form>
-          <p id="adminTokenHint" class="admin-token-hint">Render ortam değişkenindeki <code>ADMIN_TOKEN</code> değerini girmen gerekir.</p>
+          <p id="adminTokenHint" class="admin-token-hint">Render ortam degiskenindeki <code>ADMIN_TOKEN</code> degerini girmen gerekir.</p>
         </div>
       </section>
 
@@ -40,28 +41,28 @@
         <div class="admin-card">
           <span>Toplam Oda</span>
           <strong id="totalRoomsValue">0</strong>
-          <small id="lastUpdatedValue">Henüz veri alınmadı</small>
+          <small id="lastUpdatedValue">Henuz veri alinmadi</small>
         </div>
       </section>
 
       <section class="admin-summary admin-summary-history">
         <div class="admin-card">
-          <span>Son 10 Günde Açılan Oda</span>
+          <span>Son 10 Gunde Acilan Oda</span>
           <strong id="roomsLast10DaysValue">0</strong>
-          <small>Günlük açılan oda toplamı</small>
+          <small>Gunluk acilan oda toplami</small>
         </div>
         <div class="admin-card">
-          <span>Son 10 Günde Gelen Oyuncu</span>
+          <span>Son 10 Gunde Gelen Oyuncu</span>
           <strong id="playersLast10DaysValue">0</strong>
-          <small>Gün bazında görülen benzersiz oyuncular</small>
+          <small>Gun bazinda gorulen benzersiz oyuncular</small>
         </div>
       </section>
 
       <section class="admin-breakdown">
         <div class="player-list-card">
           <div class="player-list-title">
-            <span>Oda Durumları</span>
-            <strong>Canlı</strong>
+            <span>Oda Durumlari</span>
+            <strong>Canli</strong>
           </div>
           <ul class="players-list">
             <li class="compact"><strong>Bekleyen</strong><span id="waitingRoomsValue">0</span></li>
@@ -72,30 +73,30 @@
         </div>
 
         <div class="panel-note">
-          <strong>Nasıl kullanılır?</strong>
-          <p>Bu sayfa 10 saniyede bir kendini yeniler. Token girdikten sonra tarayıcıdan <code>/admin.html</code> adresi üzerinden anlık oyuncu ve oda sayısını takip edebilirsin.</p>
+          <strong>Nasil kullanilir?</strong>
+          <p>Bu panel 10 saniyede bir kendini yeniler. Token girdikten sonra anlik oyuncu, oda ve son 10 gun trendlerini takip edebilirsin.</p>
         </div>
       </section>
 
       <section class="admin-history-grid">
         <div class="player-list-card">
           <div class="player-list-title">
-            <span>Son 10 Gün</span>
+            <span>Son 10 Gun</span>
             <strong>Trend</strong>
           </div>
           <div class="admin-history-table-wrap">
             <table class="admin-history-table">
               <thead>
                 <tr>
-                  <th>Gün</th>
-                  <th>Açılan Oda</th>
-                  <th>Katılım İsteği</th>
+                  <th>Gun</th>
+                  <th>Acilan Oda</th>
+                  <th>Katilim Istegi</th>
                   <th>Gelen Oyuncu</th>
                 </tr>
               </thead>
               <tbody id="historyTableBody">
                 <tr>
-                  <td colspan="4">Henüz veri alınmadı.</td>
+                  <td colspan="4">Henuz veri alinmadi.</td>
                 </tr>
               </tbody>
             </table>
@@ -105,6 +106,6 @@
     </main>
   </div>
 
-  <script src="admin.js"></script>
+  <script src="/control-room-7f9k-admin.js"></script>
 </body>
 </html>

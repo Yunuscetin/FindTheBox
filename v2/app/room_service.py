@@ -177,10 +177,13 @@ class RoomService:
         if len(room.players) < 2:
             raise RoomServiceError("Oyunu baslatmak icin en az 2 oyuncu gerekli.")
         for player in room.players:
-            player.step_wins = 0
+            player.score = 0
         room.phase = "playing"
         room.step_index = 0
-        room.step_winners = []
+        room.step_summaries = []
+        room.current_step_scores = {}
+        room.current_step_first_finders = []
+        room.winner_id = None
         room.setup_step()
         return self.update_room(db, room)
 
@@ -191,10 +194,13 @@ class RoomService:
         if room.phase != "finished":
             raise RoomServiceError("Turnuva bitmeden yeniden baslatilamaz.")
         for player in room.players:
-            player.step_wins = 0
+            player.score = 0
         room.phase = "playing"
         room.step_index = 0
-        room.step_winners = []
+        room.step_summaries = []
+        room.current_step_scores = {}
+        room.current_step_first_finders = []
+        room.winner_id = None
         room.setup_step()
         return self.update_room(db, room)
 
@@ -217,16 +223,30 @@ class RoomService:
             raise RoomServiceError("Bu kutu zaten acildi.")
 
         room.touch_player(player_id)
-        is_winner = tile_index == room.winning_index
+        is_green = tile_index in room.green_indexes
         tile["state"] = "revealed"
-        tile["color"] = "green" if is_winner else "red"
+        tile["color"] = "green" if is_green else "red"
         tile["playerId"] = player_id
         tile["initials"] = player.initials
 
-        if is_winner:
-            player.step_wins += 1
-            room.step_winners.append(player_id)
-            room.start_celebration(player_id)
+        if is_green:
+            player.score += 1
+            room.found_green_count += 1
+            room.current_step_scores[player_id] = room.current_step_scores.get(player_id, 0) + 1
+            if player_id not in room.current_step_first_finders:
+                room.current_step_first_finders.append(player_id)
+
+            if room.found_green_count >= room.current_step["green_boxes"]:
+                room.finish_step()
+                return self.update_room(db, room)
+
+            if room.opening_player_id == player_id and room.opening_streak_remaining > 1:
+                room.opening_streak_remaining -= 1
+                room.mark_turn_started()
+            else:
+                room.opening_streak_remaining = 0
+                room.opening_player_id = None
+                room.advance_turn()
         else:
             if room.opening_player_id == player_id and room.opening_streak_remaining > 1:
                 room.opening_streak_remaining -= 1

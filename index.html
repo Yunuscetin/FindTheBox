@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yeşil Kutuyu Bul | Multiplayer Browser Game with Room Code</title>
-  <meta name="description" content="Yeşil Kutuyu Bul is a multiplayer browser game where friends join a room, open boxes in turns, and try to find the hidden green box first. Play on mobile or desktop.">
+  <meta name="description" content="Yeşil Kutuyu Bul, oda koduyla oynanan çok oyunculu bir browser game deneyimidir. 5 tur boyunca yeşil kutuları bul, puan topla ve finalde lider ol.">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://findthebox.co/">
   <link rel="alternate" hreflang="tr" href="https://findthebox.co/tr/">
@@ -12,13 +12,13 @@
   <link rel="alternate" hreflang="x-default" href="https://findthebox.co/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Yeşil Kutuyu Bul | Multiplayer Browser Game">
-  <meta property="og:description" content="Create a room, invite friends, and find the hidden green box before anyone else.">
+  <meta property="og:description" content="Create a room, invite friends, find multiple green boxes across 5 rounds, and finish on top of the score table.">
   <meta property="og:url" content="https://findthebox.co/">
   <meta property="og:site_name" content="FindTheBox">
   <meta property="og:locale" content="tr_TR">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Yeşil Kutuyu Bul | Multiplayer Browser Game">
-  <meta name="twitter:description" content="Play a fast room-based browser game with friends on desktop or mobile.">
+  <meta name="twitter:description" content="Play a score-based browser game with friends on desktop or mobile.">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -47,7 +47,7 @@
         </label>
         <div class="profile-chip">
           <span id="playerBadgeLabel">Oyuncu</span>
-        <strong id="playerBadge">-</strong>
+          <strong id="playerBadge">-</strong>
         </div>
       </div>
     </header>
@@ -58,7 +58,6 @@
           <div class="player-list-card">
             <div class="player-list-title">
               <span id="guidesTitle">Rehberler</span>
-              <strong>SEO</strong>
             </div>
             <ul class="players-list">
               <li class="compact"><a id="guidePrimary" href="/tr/nasil-oynanir/">Yeşil Kutuyu Bul nasıl oynanır?</a></li>
@@ -68,49 +67,49 @@
 
           <div class="panel-note">
             <strong id="sidebarNoteTitle">Oyun Hakkında</strong>
-            <p id="sidebarNoteText">Önce rehberlere göz atabilir, sonra oda kurup hemen oyuna başlayabilirsin.</p>
+            <p id="sidebarNoteText">Önce rehberlere göz atabilir, sonra oda kurup puanlı turnuvayı başlatabilirsin.</p>
           </div>
         </aside>
 
         <div class="hero-main">
           <div class="hero-copy">
             <p id="heroKicker" class="section-kicker">Lobi tabanlı oyun</p>
-            <h2 id="heroTitle">Arkadaşlarını davet et, sırayla kutu aç, yeşili bulan kazansın.</h2>
+            <h2 id="heroTitle">Arkadaşlarını davet et, turlar boyunca yeşil kutuları topla, puan tablosunda zirveye çık.</h2>
             <p id="heroDescription">
               Oyun sahibi bir oda kurar, oyuncu sayısını belirler ve arkadaşlarını davet eder.
               Oyuncular davet linki ya da oda koduyla lobiye katılır. Turnuva başladığında herkes
-              sırayla kutu açar, yeşil kutuyu bulan oyuncu o turu kazanır ve bir sonraki turda avantaj
-              elde eder.
+              sırayla kutu açar, her turdaki yeşil kutuları buldukça puan toplar. Turnuva sonunda
+              en çok yeşil kutu puanı toplayan oyuncu kazanır.
             </p>
 
             <div class="hero-rules">
               <div class="hero-rule-card">
                 <strong id="heroRuleFlowTitle">Oyun Akışı</strong>
-                <p id="heroRuleFlowText">Toplam 5 tur vardır. Her turda kutu sayısı azalır ve oyun daha zor hale gelir.</p>
+                <p id="heroRuleFlowText">Toplam 5 tur vardır. Her turda kutu sayısı azalır, yeşil kutu sayısı düşer ve puanlar final tabloya eklenir.</p>
               </div>
               <div class="hero-rule-card">
                 <strong id="heroRule1Title">Tur 1</strong>
-                <p id="heroRule1Text">100 kutu vardır. Herkes sırayla 1 kutu açar. Yeşili bulan ilk turu kazanır.</p>
+                <p id="heroRule1Text">100 kutuda 5 yeşil kutu vardır. Her oyuncu sırayla 1 kutu açar.</p>
               </div>
               <div class="hero-rule-card">
                 <strong id="heroRule2Title">Tur 2</strong>
-                <p id="heroRule2Text">80 kutu vardır. 1. turu kazanan oyuncu ilk başlar ve arka arkaya 5 kutu açar.</p>
+                <p id="heroRule2Text">80 kutuda 4 yeşil kutu vardır.</p>
               </div>
               <div class="hero-rule-card">
                 <strong id="heroRule3Title">Tur 3</strong>
-                <p id="heroRule3Text">60 kutu vardır. 2. turu kazanan oyuncu ilk başlar ve 5 kutu açma hakkı kazanır.</p>
+                <p id="heroRule3Text">60 kutuda 3 yeşil kutu vardır.</p>
               </div>
               <div class="hero-rule-card">
                 <strong id="heroRule4Title">Tur 4</strong>
-                <p id="heroRule4Text">50 kutu vardır. 3. turu kazanan oyuncu ilk başlar ve yine 5 kutu açar.</p>
+                <p id="heroRule4Text">50 kutuda 2 yeşil kutu vardır.</p>
               </div>
               <div class="hero-rule-card">
                 <strong id="heroRule5Title">Tur 5</strong>
-                <p id="heroRule5Text">40 kutu vardır. 4. turu kazanan oyuncu ilk başlar, bu kez 3 kutu açar.</p>
+                <p id="heroRule5Text">40 kutuda 1 yeşil kutu vardır.</p>
               </div>
               <div class="hero-rule-card">
                 <strong id="heroRuleLeaderTitle">Liderlik</strong>
-                <p id="heroRuleLeaderText">Turnuva sonunda en çok tur kazanan oyuncu lider olur. Eşitlik varsa liderlik paylaşılır.</p>
+                <p id="heroRuleLeaderText">Turnuva sonunda en çok yeşil kutu puanı toplayan oyuncu lider olur. Eşitlik varsa liderlik paylaşılır.</p>
               </div>
             </div>
           </div>
@@ -122,7 +121,7 @@
               <label id="joinRoomLabel" for="roomCodeInput">Oda kodu ile katıl</label>
               <div class="join-row">
                 <input id="roomCodeInput" name="roomCode" type="text" maxlength="6" placeholder="Örn. A7K2P9" autocomplete="off">
-                <button class="secondary-button" type="submit">Oyuna Katil</button>
+                <button class="secondary-button" type="submit">Oyuna Katıl</button>
               </div>
             </form>
 
@@ -179,7 +178,7 @@
 
             <div class="panel-note">
               <strong id="turnRuleTitle">Tur Kuralı</strong>
-              <p id="stepRuleText">1. turda herkes sırayla 1 kutu açar. Sonraki turlarda kazanan oyuncu bonus açılış hakkıyla başlar.</p>
+              <p id="stepRuleText">1. turda 100 kutu içinde 5 yeşil kutu vardır. Sonraki turlarda kutu ve yeşil kutu sayısı birlikte azalır.</p>
             </div>
           </aside>
 
@@ -192,7 +191,7 @@
               </div>
 
               <div class="toolbar-actions">
-                <button id="startGameButton" class="primary-button" type="button">Oyunu Baslat</button>
+                <button id="startGameButton" class="primary-button" type="button">Oyunu Başlat</button>
                 <button id="leaveRoomButton" class="ghost-button" type="button">Lobiden Ayrıl</button>
               </div>
             </div>
@@ -207,7 +206,7 @@
                 <strong id="stepLabel">1/5</strong>
               </div>
               <div class="turn-card">
-                <span id="bonusTitle">Bonus Hak</span>
+                <span id="bonusTitle">Yeşil Kalan</span>
                 <strong id="bonusLabel">-</strong>
               </div>
               <div class="turn-card">
@@ -286,8 +285,8 @@
       <span class="burst burst-d"></span>
     </div>
     <div class="celebration-card">
-      <p id="celebrationKicker" class="section-kicker">Tur Kazanıldı</p>
-      <h2 id="celebrationTitle">Kazanan belli oldu</h2>
+      <p id="celebrationKicker" class="section-kicker">Tur Tamamlandı</p>
+      <h2 id="celebrationTitle">Tur tamamlandı</h2>
       <p id="celebrationText">Yeni tur 5 saniye içinde başlayacak.</p>
     </div>
   </div>

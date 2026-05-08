@@ -10,10 +10,10 @@ from v2.app.routes import admin, health, rooms
 from v2.app.websocket_manager import room_connections
 
 STATIC_DIR = Path(__file__).resolve().parents[2]
+ADMIN_PAGE_PATH = "control-room-7f9k-admin.html"
+ADMIN_SCRIPT_PATH = "control-room-7f9k-admin.js"
 ROOT_STATIC_FILES = {
     "index.html",
-    "admin.html",
-    "admin.js",
     "script.js",
     "styles.css",
     "robots.txt",
@@ -61,6 +61,16 @@ app.mount("/en", StaticFiles(directory=str(STATIC_DIR / "en"), html=True), name=
 @app.get("/")
 async def root_index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get(f"/{ADMIN_PAGE_PATH}")
+async def hidden_admin_page() -> FileResponse:
+    return FileResponse(STATIC_DIR / "admin.html")
+
+
+@app.get(f"/{ADMIN_SCRIPT_PATH}")
+async def hidden_admin_script() -> FileResponse:
+    return FileResponse(STATIC_DIR / "admin.js")
 
 
 @app.get("/{file_name}")

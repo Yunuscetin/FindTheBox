@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /control-room-7f9k-admin.html
+Disallow: /control-room-7f9k-admin.js
 Disallow: /api/
 
 Sitemap: https://findthebox.co/sitemap.xml

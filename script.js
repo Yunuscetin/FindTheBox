@@ -176,27 +176,27 @@ const translations = {
     languageLabel: "Dil",
     playerBadgeLabel: "Oyuncu",
     heroKicker: "Lobi tabanlı oyun",
-    heroTitle: "Arkadaşlarını davet et, sırayla kutu aç, yeşili bulan kazansın.",
-    heroDescription: "Oyun sahibi bir oda kurar, oyuncu sayısını belirler ve arkadaşlarını davet eder. Oyuncular davet linki ya da oda koduyla lobiye katılır. Turnuva başladığında herkes sırayla kutu açar, yeşil kutuyu bulan oyuncu o turu kazanır ve bir sonraki turda avantaj elde eder.",
+    heroTitle: "Arkadaşlarını davet et, turlar boyunca yeşil kutuları topla, puan tablosunda zirveye çık.",
+    heroDescription: "Oyun sahibi bir oda kurar, oyuncu sayısını belirler ve arkadaşlarını davet eder. Oyuncular davet linki ya da oda koduyla lobiye katılır. Turnuva başladığında herkes sırayla kutu açar, bulunan her yeşil kutu puan kazandırır. Finalde en çok yeşil kutu puanı toplayan oyuncu kazanır.",
     heroRuleFlowTitle: "Oyun Akışı",
-    heroRuleFlowText: "Toplam 5 tur vardır. Her turda kutu sayısı azalır ve oyun daha zor hale gelir.",
+    heroRuleFlowText: "Toplam 5 tur vardır. Kutu sayısı azalır, yeşil kutu sayısı 5'ten 1'e düşer ve tüm puanlar final tabloya yazılır.",
     heroRule1Title: "Tur 1",
-    heroRule1Text: "100 kutu vardır. Herkes sırayla 1 kutu açar. Yeşili bulan ilk turu kazanır.",
+    heroRule1Text: "100 kutuda 5 yeşil kutu vardır. Her oyuncu sırayla 1 kutu açar.",
     heroRule2Title: "Tur 2",
-    heroRule2Text: "80 kutu vardır. 1. turu kazanan oyuncu ilk başlar ve arka arkaya 5 kutu açar.",
+    heroRule2Text: "80 kutuda 4 yeşil kutu vardır.",
     heroRule3Title: "Tur 3",
-    heroRule3Text: "60 kutu vardır. 2. turu kazanan oyuncu ilk başlar ve 5 kutu açma hakkı kazanır.",
+    heroRule3Text: "60 kutuda 3 yeşil kutu vardır.",
     heroRule4Title: "Tur 4",
-    heroRule4Text: "50 kutu vardır. 3. turu kazanan oyuncu ilk başlar ve yine 5 kutu açar.",
+    heroRule4Text: "50 kutuda 2 yeşil kutu vardır.",
     heroRule5Title: "Tur 5",
-    heroRule5Text: "40 kutu vardır. 4. turu kazanan oyuncu ilk başlar, bu kez 3 kutu açar.",
+    heroRule5Text: "40 kutuda 1 yeşil kutu vardır.",
     heroRuleLeaderTitle: "Liderlik",
-    heroRuleLeaderText: "Turnuva sonunda en çok tur kazanan oyuncu lider olur. Eşitlik varsa liderlik paylaşılır.",
+    heroRuleLeaderText: "Turnuva sonunda en çok yeşil kutu puanı toplayan oyuncu lider olur. Eşitlik varsa liderlik paylaşılır.",
     guidesTitle: "Rehberler",
     guidePrimary: "Yeşil Kutuyu Bul nasıl oynanır?",
     guideSecondary: "Arkadaşlarla browser oyunu",
     sidebarNoteTitle: "Oyun Hakkında",
-    sidebarNoteText: "Önce rehberlere göz atabilir, sonra oda kurup hemen oyuna başlayabilirsin.",
+    sidebarNoteText: "Önce rehberlere göz atabilir, sonra oda kurup puanlı turnuvayı başlatabilirsin.",
     createRoom: "Oyun Kur",
     joinByCode: "Oda kodu ile katıl",
     joinGame: "Oyuna Katıl",
@@ -215,7 +215,7 @@ const translations = {
     leaveRoom: "Lobiden Ayrıl",
     turnTitle: "Sıra",
     roundTitle: "Tur",
-    bonusTitle: "Bonus Hak",
+    bonusTitle: "Yeşil Kalan",
     timerTitle: "Süre",
     turnResultsTitle: "Tur Sonuçları",
     nameDialogKicker: "İlk Giriş",
@@ -229,16 +229,16 @@ const translations = {
     maxPlayersLabel: "Maksimum oyuncu",
     createRoomSubmit: "Odayı Kur",
     cancel: "Vazgeç",
-    restartDialogKicker: "Tur Bitti",
+    restartDialogKicker: "Tur Tamamlandı",
     restartGame: "Tekrar Başlat",
     later: "Daha Sonra",
-    celebrationKicker: "Tur Kazanıldı",
+    celebrationKicker: "Tur Tamamlandı",
     pending: "Bekleniyor",
-    turnRule1: "1. turda 100 kutu vardır ve herkes sırayla 1 kutu açar.",
-    turnRule2: "2. turda 80 kutu vardır. 1. turu kazanan oyuncu ilk başlar ve arka arkaya 5 kutu açar.",
-    turnRule3: "3. turda 60 kutu vardır. 2. turu kazanan oyuncu ilk başlar ve 5 kutu açma avantajı alır.",
-    turnRule4: "4. turda 50 kutu vardır. 3. turu kazanan oyuncu yine 5 kutu açarak başlar.",
-    turnRule5: "5. turda 40 kutu vardır. 4. turu kazanan oyuncu ilk başlar ve bu kez 3 kutu açabilir."
+    turnRule1: "1. turda 100 kutu içinde 5 yeşil kutu vardır. Herkes sırayla 1 kutu açar.",
+    turnRule2: "2. turda 80 kutu içinde 4 yeşil kutu vardır.",
+    turnRule3: "3. turda 60 kutu içinde 3 yeşil kutu vardır.",
+    turnRule4: "4. turda 50 kutu içinde 2 yeşil kutu vardır.",
+    turnRule5: "5. turda 40 kutu içinde 1 yeşil kutu vardır."
   },
   en: {
     siteTitle: "Find the Green Box",
@@ -247,27 +247,27 @@ const translations = {
     languageLabel: "Language",
     playerBadgeLabel: "Player",
     heroKicker: "Lobby-based game",
-    heroTitle: "Invite your friends, open boxes in turns, and win by finding the green one.",
-    heroDescription: "The host creates a room, sets the player count, and invites friends. Players join via invite link or room code. Once the tournament starts, everyone opens boxes in turn. Whoever finds the green box wins that round and gains an advantage in the next one.",
+    heroTitle: "Invite your friends, collect green boxes across every round, and finish on top of the score table.",
+    heroDescription: "The host creates a room, sets the player count, and invites friends. Players join via invite link or room code. Once the tournament starts, everyone opens boxes in turn, and every green box adds to the player's score. The highest total at the end wins.",
     heroRuleFlowTitle: "Game Flow",
-    heroRuleFlowText: "There are 5 rounds in total. Each round has fewer boxes and gets harder.",
+    heroRuleFlowText: "There are 5 rounds in total. Box counts shrink, green box counts drop from 5 to 1, and every point carries into the final standings.",
     heroRule1Title: "Round 1",
-    heroRule1Text: "There are 100 boxes. Everyone opens 1 box in turn. The player who finds the green box wins the round.",
+    heroRule1Text: "Round 1 hides 5 green boxes among 100 boxes. Everyone opens 1 box in turn.",
     heroRule2Title: "Round 2",
-    heroRule2Text: "There are 80 boxes. The winner of round 1 starts first and opens 5 boxes in a row.",
+    heroRule2Text: "Round 2 hides 4 green boxes among 80 boxes.",
     heroRule3Title: "Round 3",
-    heroRule3Text: "There are 60 boxes. The winner of round 2 starts first and gets 5 opening picks.",
+    heroRule3Text: "Round 3 hides 3 green boxes among 60 boxes.",
     heroRule4Title: "Round 4",
-    heroRule4Text: "There are 50 boxes. The winner of round 3 starts first and again opens 5 boxes.",
+    heroRule4Text: "Round 4 hides 2 green boxes among 50 boxes.",
     heroRule5Title: "Round 5",
-    heroRule5Text: "There are 40 boxes. The winner of round 4 starts first and opens 3 boxes this time.",
+    heroRule5Text: "Round 5 hides 1 green box among 40 boxes.",
     heroRuleLeaderTitle: "Leaderboard",
-    heroRuleLeaderText: "At the end of the tournament, the player with the most round wins becomes the leader. Ties share the lead.",
+    heroRuleLeaderText: "At the end of the tournament, the player with the highest green-box score becomes the leader. Ties share the lead.",
     guidesTitle: "Guides",
     guidePrimary: "How to play Find the Green Box",
     guideSecondary: "Browser game with friends",
     sidebarNoteTitle: "About the Game",
-    sidebarNoteText: "Browse the guides first, then create a room and start playing right away.",
+    sidebarNoteText: "Browse the guides first, then create a room and launch the score-based tournament.",
     createRoom: "Create Room",
     joinByCode: "Join with room code",
     joinGame: "Join Game",
@@ -286,7 +286,7 @@ const translations = {
     leaveRoom: "Leave Lobby",
     turnTitle: "Turn",
     roundTitle: "Round",
-    bonusTitle: "Bonus Picks",
+    bonusTitle: "Greens Left",
     timerTitle: "Timer",
     turnResultsTitle: "Round Results",
     nameDialogKicker: "First Visit",
@@ -300,16 +300,16 @@ const translations = {
     maxPlayersLabel: "Maximum players",
     createRoomSubmit: "Create Room",
     cancel: "Cancel",
-    restartDialogKicker: "Round Complete",
+    restartDialogKicker: "Round Closed",
     restartGame: "Restart",
     later: "Later",
-    celebrationKicker: "Round Won",
+    celebrationKicker: "Round Complete",
     pending: "Waiting",
-    turnRule1: "Round 1 has 100 boxes and everyone opens 1 box in turn.",
-    turnRule2: "Round 2 has 80 boxes. The winner of round 1 starts first and opens 5 boxes in a row.",
-    turnRule3: "Round 3 has 60 boxes. The winner of round 2 starts first and gets 5 opening picks.",
-    turnRule4: "Round 4 has 50 boxes. The winner of round 3 starts first and again opens 5 boxes.",
-    turnRule5: "Round 5 has 40 boxes. The winner of round 4 starts first and opens 3 boxes this time."
+    turnRule1: "Round 1 has 5 green boxes hidden among 100 boxes. Everyone opens 1 box in turn.",
+    turnRule2: "Round 2 has 4 green boxes among 80 boxes.",
+    turnRule3: "Round 3 has 3 green boxes among 60 boxes.",
+    turnRule4: "Round 4 has 2 green boxes among 50 boxes.",
+    turnRule5: "Round 5 has 1 green box among 40 boxes."
   }
 };
 
@@ -491,6 +491,21 @@ function shouldLeaveRoomForError(message) {
   );
 }
 
+function formatGreenScore(count) {
+  if (state.language === "tr") {
+    return `${count} yeşil kutu`;
+  }
+  return `${count} green box${count === 1 ? "" : "es"}`;
+}
+
+function formatLeaderTag() {
+  return state.language === "tr" ? "Lider" : "Leader";
+}
+
+function formatSharedLeadLabel() {
+  return state.language === "tr" ? "Paylaşımlı" : "Shared";
+}
+
 function postJson(path, body) {
   return request(path, {
     method: "POST",
@@ -558,10 +573,14 @@ function renderPlayers(room) {
     avatar.textContent = player.initials;
     name.textContent = player.name;
     subline.className = "subline";
-    subline.textContent = `${player.stepWins} tur galibiyeti`;
+    subline.textContent = formatGreenScore(player.score || 0);
 
     if (player.id === room.hostId) {
       subline.textContent += " • Oda sahibi";
+    }
+
+    if (player.id === room.hostId) {
+      subline.textContent = formatGreenScore(player.score || 0) + (state.language === "tr" ? " • Oda sahibi" : " • Host");
     }
 
     nameWrap.append(name, subline);
@@ -690,7 +709,7 @@ function renderPendingJoinRequests(room) {
 function renderLeaderboard(room) {
   elements.leaderboardList.innerHTML = "";
   const leaders = room.leaderboard.filter((player) => player.isLeader);
-  elements.leaderLabel.textContent = leaders.length === 0 ? "-" : leaders.length === 1 ? leaders[0].name : "Paylaşımlı";
+  elements.leaderLabel.textContent = leaders.length === 0 ? "-" : leaders.length === 1 ? leaders[0].name : formatSharedLeadLabel();
 
   room.leaderboard.forEach((player, index) => {
     const item = document.createElement("li");
@@ -698,8 +717,8 @@ function renderLeaderboard(room) {
     const left = document.createElement("div");
     const right = document.createElement("strong");
 
-    left.innerHTML = `<strong>#${index + 1} ${player.name}</strong><div class="subline">${player.stepWins} tur birinciliği</div>`;
-    right.textContent = player.isLeader ? "Lider" : "";
+    left.innerHTML = `<strong>#${index + 1} ${player.name}</strong><div class="subline">${formatGreenScore(player.score || 0)}</div>`;
+    right.textContent = player.isLeader ? formatLeaderTag() : "";
     item.append(left, right);
     elements.leaderboardList.appendChild(item);
   });
@@ -842,8 +861,8 @@ function renderStatus(room) {
     if (currentTurn?.id === state.playerId) {
       elements.statusText.textContent = room.openingStreakRemaining > 0 && room.openingPlayerId === state.playerId
         ? (state.language === "tr"
-          ? `Avantaj sende. Bu açılış serisinde ${room.openingStreakRemaining} kutu hakkın kaldı. Süren ${room.secondsUntilTurnTimeout} saniye.`
-          : `You have the opening advantage. ${room.openingStreakRemaining} picks left in this streak. ${room.secondsUntilTurnTimeout} seconds remaining.`)
+          ? `Sıra sende. Süren ${room.secondsUntilTurnTimeout} saniye.`
+          : `It's your turn. ${room.secondsUntilTurnTimeout} seconds remaining.`)
         : state.pendingMove
           ? (state.language === "tr" ? "Hamlen gönderiliyor..." : "Submitting your move...")
           : (state.language === "tr"
@@ -852,8 +871,8 @@ function renderStatus(room) {
     } else {
       elements.statusText.textContent = room.openingStreakRemaining > 0 && openingPlayer
         ? (state.language === "tr"
-          ? `${openingPlayer.name} avantaj serisini oynuyor. Sonra normal sıra devam edecek.`
-          : `${openingPlayer.name} is using the opening advantage. Normal turn order will continue after this.`)
+          ? `${openingPlayer.name} seçim yapıyor.`
+          : `${openingPlayer.name} is making a pick.`)
         : (state.language === "tr"
           ? `${currentTurn?.name || "Bir oyuncu"} kutu seçimini yapıyor.`
           : `${currentTurn?.name || "A player"} is choosing a box.`);
@@ -877,11 +896,11 @@ function renderStatus(room) {
       : (state.language === "tr" ? `${leaders[0]?.name || "Oyuncu"} turnuvayı önde bitirdi` : `${leaders[0]?.name || "A player"} finished in the lead`);
     elements.statusText.textContent = leaders.length > 1
       ? (state.language === "tr"
-        ? `${leaders.map((player) => player.name).join(", ")} aynı sayıda tur kazandı.`
-        : `${leaders.map((player) => player.name).join(", ")} won the same number of rounds.`)
+        ? `${leaders.map((player) => player.name).join(", ")} toplam yeşil kutu puanında eşitlendi.`
+        : `${leaders.map((player) => player.name).join(", ")} finished tied on total green-box score.`)
       : (state.language === "tr"
-        ? `${leaders[0]?.name || "Oyuncu"} en fazla tur birinciliğini aldı.`
-        : `${leaders[0]?.name || "A player"} got the most round wins.`);
+        ? `${leaders[0]?.name || "Oyuncu"} en yüksek yeşil kutu puanına ulaştı.`
+        : `${leaders[0]?.name || "A player"} reached the highest green-box score.`);
   }
 
   elements.startGameButton.disabled = !isHost || room.phase !== "waiting" || room.players.length < 2;
@@ -896,10 +915,306 @@ function maybeShowRestartDialog(room) {
   const leaders = room.leaderboard.filter((player) => player.isLeader);
   elements.restartTitle.textContent = leaders.length > 1
     ? (state.language === "tr" ? "Turnuva beraberlikle bitti" : "The tournament ended in a tie")
-    : (state.language === "tr" ? `${leaders[0]?.name || "Oyuncu"} lider oldu` : `${leaders[0]?.name || "A player"} is the leader`);
+    : (state.language === "tr" ? `${leaders[0]?.name || "Oyuncu"} zirvede tamamladı` : `${leaders[0]?.name || "A player"} finished on top`);
   elements.restartText.textContent = state.language === "tr"
-    ? "Aynı lobiyle 5 turluk yeni bir turnuva başlatmak ister misin?"
-    : "Would you like to start a new 5-round tournament with the same lobby?";
+    ? "Aynı lobiyle yeni bir puan tabanlı turnuva başlatmak ister misin?"
+    : "Would you like to start another score-based tournament with the same lobby?";
+  elements.restartDialog.showModal();
+  state.restartDialogShownForTournament = true;
+}
+
+function renderPlayers(room) {
+  elements.playersList.innerHTML = "";
+  elements.playerCountLabel.textContent = `${room.players.length}/${room.maxPlayers}`;
+  const isHost = room.hostId === state.playerId;
+
+  room.players.forEach((player) => {
+    const item = document.createElement("li");
+    const meta = document.createElement("div");
+    const actions = document.createElement("div");
+    const avatar = document.createElement("div");
+    const nameWrap = document.createElement("div");
+    const name = document.createElement("strong");
+    const subline = document.createElement("div");
+
+    meta.className = "player-meta";
+    actions.className = "player-actions";
+    avatar.className = "avatar";
+    avatar.textContent = player.initials;
+    name.textContent = player.name;
+    subline.className = "subline";
+    subline.textContent = formatGreenScore(player.score || 0);
+
+    if (player.id === room.hostId) {
+      subline.textContent += state.language === "tr" ? " • Oda sahibi" : " • Host";
+    }
+
+    nameWrap.append(name, subline);
+    meta.append(avatar, nameWrap);
+    item.appendChild(meta);
+
+    if (player.id === room.currentTurnPlayerId && room.phase === "playing") {
+      const pill = document.createElement("span");
+      pill.className = "pill";
+      pill.textContent = state.language === "tr" ? "Sırada" : "Current";
+      actions.appendChild(pill);
+    } else if (player.id === state.playerId) {
+      const pill = document.createElement("span");
+      pill.className = "pill";
+      pill.textContent = state.language === "tr" ? "Sen" : "You";
+      actions.appendChild(pill);
+    }
+
+    if (isHost && player.id !== state.playerId) {
+      const kickButton = document.createElement("button");
+      kickButton.type = "button";
+      kickButton.className = "row-action-button";
+      kickButton.textContent = state.language === "tr" ? "Çıkar" : "Kick";
+      kickButton.addEventListener("click", async () => {
+        try {
+          const payload = await postJson(`/rooms/${state.roomCode}/kick`, {
+            playerId: state.playerId,
+            targetPlayerId: player.id
+          });
+          renderRoom(payload.room);
+          showToast(state.language === "tr" ? `${player.name} odadan çıkarıldı.` : `${player.name} was removed from the room.`);
+          scheduleNextPoll();
+        } catch (error) {
+          showToast(error.message);
+        }
+      });
+      actions.appendChild(kickButton);
+    }
+
+    if (actions.childNodes.length > 0) {
+      item.appendChild(actions);
+    }
+
+    elements.playersList.appendChild(item);
+  });
+}
+
+const baseApplyLanguage = applyLanguage;
+applyLanguage = function applyLanguageV2() {
+  baseApplyLanguage();
+
+  const sidebarTitle = document.querySelector(".player-list-title strong");
+  if (sidebarTitle && sidebarTitle.textContent === "SEO") {
+    sidebarTitle.textContent = "";
+  }
+
+  elements.heroDescription.textContent = state.language === "tr"
+    ? "Oyun sahibi bir oda kurar, oyuncu sayısını belirler ve arkadaşlarını davet eder. Her turda birden fazla yeşil kutu vardır. Oyuncular sırayla kutu açar, buldukları her yeşil kutu puan kazandırır. Turnuva sonunda en fazla yeşil kutuyu bulan oyuncu zirvede yer alır."
+    : "The host creates a room, sets the player count, and invites friends. Each round contains multiple green boxes. Players open boxes in turn, and every green box they find adds to their score. The player with the highest total at the end of the tournament finishes on top.";
+  elements.heroRuleFlowText.textContent = state.language === "tr"
+      ? "Toplam 5 tur vardır. Kutular azalır, yeşil kutu sayısı da 5'ten 1'e düşer. Her bulunan yeşil kutu final puan tablosuna eklenir."
+      : "There are 5 rounds in total. The number of boxes shrinks, the green box count drops from 5 to 1, and every green found is added to the final score table.";
+  elements.heroRule1Text.textContent = state.language === "tr"
+    ? "100 kutuda 5 yeşil kutu vardır. Herkes sırayla 1 kutu açar."
+    : "There are 5 green boxes hidden among 100 boxes. Everyone opens 1 box in turn.";
+  elements.heroRule2Text.textContent = state.language === "tr"
+    ? "80 kutuda 4 yeşil kutu vardır."
+    : "There are 4 green boxes among 80 boxes.";
+  elements.heroRule3Text.textContent = state.language === "tr"
+    ? "60 kutuda 3 yeşil kutu vardır."
+    : "There are 3 green boxes among 60 boxes.";
+  elements.heroRule4Text.textContent = state.language === "tr"
+      ? "50 kutuda 2 yeşil kutu vardır."
+      : "There are 2 green boxes among 50 boxes.";
+  elements.heroRule5Text.textContent = state.language === "tr"
+      ? "40 kutuda 1 yeşil kutu vardır."
+      : "There is 1 green box among 40 boxes.";
+  elements.heroRuleLeaderText.textContent = state.language === "tr"
+    ? "Final sıralama tur galibiyetine göre değil, toplam bulunan yeşil kutu sayısına göre belirlenir."
+    : "The final ranking is based on total green boxes found, not on round wins.";
+  elements.sidebarNoteText.textContent = state.language === "tr"
+    ? "Önce rehberlere göz atabilir, sonra oda kurup puan tabanlı yeni sistemi hemen deneyebilirsin."
+    : "You can skim the guides first, then create a room and try the new score-based format right away.";
+};
+
+function renderLeaderboard(room) {
+  elements.leaderboardList.innerHTML = "";
+  const leaders = room.leaderboard.filter((player) => player.isLeader);
+  elements.leaderLabel.textContent = leaders.length === 0 ? "-" : leaders.length === 1 ? leaders[0].name : formatSharedLeadLabel();
+
+  room.leaderboard.forEach((player, index) => {
+    const item = document.createElement("li");
+    item.className = "compact";
+    const left = document.createElement("div");
+    const right = document.createElement("strong");
+
+    left.innerHTML = `<strong>#${index + 1} ${player.name}</strong><div class="subline">${formatGreenScore(player.score || 0)}</div>`;
+    right.textContent = player.isLeader ? formatLeaderTag() : "";
+    item.append(left, right);
+    elements.leaderboardList.appendChild(item);
+  });
+}
+
+function renderTurnResults(room) {
+  elements.stepResultsList.innerHTML = "";
+  elements.resultsCountLabel.textContent = `${room.stepResults.length}/${room.totalSteps}`;
+
+  room.stepResults.forEach((result) => {
+    const item = document.createElement("li");
+    item.className = "compact";
+    const leaderText = result.leaderNames.length > 1
+      ? `${state.language === "tr" ? "Tur liderleri" : "Round leaders"}: ${result.leaderNames.join(", ")}`
+      : `${state.language === "tr" ? "Tur lideri" : "Round leader"}: ${result.leaderNames[0]}`;
+    const scoreText = state.language === "tr"
+      ? `${result.topScore} yeşil • ${result.greenBoxes} toplam`
+      : `${result.topScore} greens • ${result.greenBoxes} total`;
+    item.innerHTML = `<strong>${state.language === "tr" ? `${result.step}. tur` : `Round ${result.step}`}</strong><span>${leaderText} (${scoreText})</span>`;
+    elements.stepResultsList.appendChild(item);
+  });
+}
+
+function renderTurnRule(room) {
+  const rules = {
+    1: state.language === "tr"
+      ? "1. turda 100 kutu içinde 5 yeşil kutu vardır. Her oyuncu sırasıyla 1 kutu açar."
+      : "Round 1 has 5 green boxes hidden among 100 boxes. Every player opens 1 box in turn.",
+    2: state.language === "tr"
+      ? "2. turda 80 kutu içinde 4 yeşil kutu vardır."
+      : "Round 2 has 4 green boxes among 80 boxes.",
+    3: state.language === "tr"
+      ? "3. turda 60 kutu içinde 3 yeşil kutu vardır."
+      : "Round 3 has 3 green boxes among 60 boxes.",
+    4: state.language === "tr"
+      ? "4. turda 50 kutu içinde 2 yeşil kutu vardır."
+      : "Round 4 has 2 green boxes among 50 boxes.",
+    5: state.language === "tr"
+      ? "5. turda 40 kutu içinde 1 yeşil kutu vardır."
+      : "Round 5 has 1 green box among 40 boxes.";
+  };
+
+  elements.stepRuleText.textContent = rules[room.currentStep] || "";
+}
+
+function maybeShowCelebration(room) {
+  if (room.phase !== "celebrating") {
+    hideCelebration();
+    return;
+  }
+
+  if (state.lastCelebratedTurnCount !== room.stepResults.length) {
+    state.lastCelebratedTurnCount = room.stepResults.length;
+  }
+
+  const latestResult = room.stepResults[room.stepResults.length - 1];
+  const nextTurn = Math.min(room.currentStep + 1, room.totalSteps);
+  const leaderNames = latestResult?.leaderNames?.join(", ") || (state.language === "tr" ? "Oyuncular" : "Players");
+  const title = state.language === "tr"
+    ? `${room.currentStep}. tur tamamlandı`
+    : `Round ${room.currentStep} complete`;
+  const text = room.currentStep === room.totalSteps
+    ? (state.language === "tr"
+      ? `${leaderNames} bu turu önde kapattı. Final puan tablosu hazırlanıyor.`
+      : `${leaderNames} finished this round on top. Preparing the final score table.`)
+    : (state.language === "tr"
+      ? `${leaderNames} bu turu önde kapattı. ${nextTurn}. tur ${room.secondsUntilNextStep} saniye içinde başlayacak.`
+      : `${leaderNames} finished this round on top. Round ${nextTurn} starts in ${room.secondsUntilNextStep} seconds.`);
+
+  showCelebration(title, text);
+}
+
+function renderStatus(room) {
+  const isHost = room.hostId === state.playerId;
+  const currentTurn = room.players.find((player) => player.id === room.currentTurnPlayerId);
+  const openingPlayer = room.players.find((player) => player.id === room.openingPlayerId);
+
+  elements.stepLabel.textContent = `${room.currentStep}/${room.totalSteps}`;
+  elements.turnTimerLabel.textContent = room.phase === "playing"
+    ? (state.language === "tr" ? `${room.secondsUntilTurnTimeout} sn` : `${room.secondsUntilTurnTimeout}s`)
+    : "-";
+  elements.turnLabel.textContent = room.phase === "playing" && currentTurn
+    ? currentTurn.name
+    : room.phase === "finished"
+      ? (state.language === "tr" ? "Turnuva bitti" : "Tournament over")
+      : room.phase === "celebrating"
+        ? (state.language === "tr" ? "Tur kapanıyor" : "Round closing")
+        : (state.language === "tr" ? "Başlamadı" : "Not started");
+  elements.bonusLabel.textContent = room.openingStreakRemaining > 0 && openingPlayer
+    ? `${openingPlayer.name}: ${room.openingStreakRemaining}`
+    : "-";
+
+  if (room.phase === "waiting") {
+    elements.statusHeading.textContent = state.language === "tr" ? "Puanlı turnuva hazır" : "Score-based tournament ready";
+    elements.statusText.textContent = isHost
+      ? (state.language === "tr"
+        ? `En az 2 oyuncu olduğunda ${room.maxPlayers} kişilik turnuvayı başlatabilirsin. Finalde en çok yeşil kutu bulan oyuncu öne çıkacak.`
+        : `You can start this ${room.maxPlayers}-player tournament once at least 2 players are in the room. The player with the most green boxes at the end will lead.`)
+      : (state.language === "tr"
+        ? "Oda sahibinin puanlı turnuvayı başlatmasını bekliyorsun."
+        : "Waiting for the host to start the score-based tournament.");
+  }
+
+  if (room.phase === "playing") {
+    elements.statusHeading.textContent = state.language === "tr"
+      ? `Tur ${room.currentStep} oynanıyor • ${room.remainingGreenCount} yeşil kaldı`
+      : `Round ${room.currentStep} in progress • ${room.remainingGreenCount} greens left`;
+
+    if (currentTurn?.id === state.playerId) {
+      elements.statusText.textContent = room.openingStreakRemaining > 0 && room.openingPlayerId === state.playerId
+        ? (state.language === "tr"
+          ? `Sıra sende. Turda ${room.remainingGreenCount} yeşil kutu daha var.`
+          : `It's your turn. ${room.remainingGreenCount} green boxes are still hidden this round.`)
+        : state.pendingMove
+          ? (state.language === "tr" ? "Hamlen gönderiliyor..." : "Submitting your move...")
+          : (state.language === "tr"
+            ? `Sıra sende. Bir kutu seç ve kalan ${room.remainingGreenCount} yeşil kutudan birini bulmaya çalış.`
+            : `It's your turn. Pick a box and try to hit one of the ${room.remainingGreenCount} remaining green boxes.`);
+    } else {
+      elements.statusText.textContent = room.openingStreakRemaining > 0 && openingPlayer
+        ? (state.language === "tr"
+          ? `${openingPlayer.name} seçim yapıyor. Bu turda ${room.remainingGreenCount} yeşil kutu kaldı.`
+          : `${openingPlayer.name} is making a pick. ${room.remainingGreenCount} green boxes remain in this round.`)
+        : (state.language === "tr"
+          ? `${currentTurn?.name || "Bir oyuncu"} kutu seçimini yapıyor. Bu turda ${room.remainingGreenCount} yeşil kutu kaldı.`
+          : `${currentTurn?.name || "A player"} is choosing a box. ${room.remainingGreenCount} green boxes remain in this round.`);
+    }
+  }
+
+  if (room.phase === "celebrating") {
+    const latestResult = room.stepResults[room.stepResults.length - 1];
+    const leaders = latestResult?.leaderNames?.join(", ") || (state.language === "tr" ? "Oyuncular" : "Players");
+    elements.statusHeading.textContent = state.language === "tr"
+      ? `${leaders} bu turu önde bitirdi`
+      : `${leaders} finished this round in front`;
+    elements.statusText.textContent = room.currentStep === room.totalSteps
+      ? (state.language === "tr" ? "Final puan tablosu hazırlanıyor." : "Preparing the final score table.")
+      : (state.language === "tr" ? `Yeni tur ${room.secondsUntilNextStep} saniye içinde başlayacak.` : `The next round starts in ${room.secondsUntilNextStep} seconds.`);
+  }
+
+  if (room.phase === "finished") {
+    const leaders = room.leaderboard.filter((player) => player.isLeader);
+    elements.statusHeading.textContent = leaders.length > 1
+      ? (state.language === "tr" ? "Paylaşımlı liderlik" : "Shared lead")
+      : (state.language === "tr" ? `${leaders[0]?.name || "Oyuncu"} turnuvayı önde kapattı` : `${leaders[0]?.name || "A player"} finished on top`);
+    elements.statusText.textContent = leaders.length > 1
+      ? (state.language === "tr"
+        ? `${leaders.map((player) => player.name).join(", ")} toplam yeşil kutu puanında eşitlendi.`
+        : `${leaders.map((player) => player.name).join(", ")} finished tied on total green box score.`)
+      : (state.language === "tr"
+        ? `${leaders[0]?.name || "Oyuncu"} toplam ${formatGreenScore(leaders[0]?.score || 0)} ile zirvede yer aldı.`
+        : `${leaders[0]?.name || "A player"} led the tournament with ${formatGreenScore(leaders[0]?.score || 0)}.`);
+  }
+
+  elements.startGameButton.disabled = !isHost || room.phase !== "waiting" || room.players.length < 2;
+}
+
+function maybeShowRestartDialog(room) {
+  const isHost = room.hostId === state.playerId;
+  if (!isHost || room.phase !== "finished" || state.restartDialogShownForTournament) {
+    return;
+  }
+
+  const leaders = room.leaderboard.filter((player) => player.isLeader);
+  elements.restartTitle.textContent = leaders.length > 1
+    ? (state.language === "tr" ? "Turnuva beraberlikle bitti" : "The tournament ended in a tie")
+    : (state.language === "tr" ? `${leaders[0]?.name || "Oyuncu"} zirvede tamamladı` : `${leaders[0]?.name || "A player"} finished on top`);
+  elements.restartText.textContent = state.language === "tr"
+    ? "Aynı lobiyle, çoklu yeşil kutu ve puan tabanlı yeni bir turnuva başlatmak ister misin?"
+    : "Would you like to start another score-based tournament with the same multi-green format?";
   elements.restartDialog.showModal();
   state.restartDialogShownForTournament = true;
 }
@@ -1409,6 +1724,68 @@ function setupEvents() {
     }
   });
 }
+
+const finalApplyLanguage = applyLanguage;
+applyLanguage = function applyLanguageFinal() {
+  finalApplyLanguage();
+
+  elements.heroDescription.textContent = state.language === "tr"
+    ? "Oyun sahibi bir oda kurar, oyuncu sayisini belirler ve arkadaslarini davet eder. Oyuncular davet linki ya da oda koduyla lobiye katilir. Turnuva basladiginda herkes sirayla kutu acar, bulunan her yesil kutu puan kazandirir. Finalde en cok yesil kutu puani toplayan oyuncu kazanir."
+    : "The host creates a room, sets the player count, and invites friends. Players join via invite link or room code. Once the tournament starts, everyone opens boxes in turn, and every green box adds to the player's score. The player with the highest total at the end wins.";
+  elements.heroRuleFlowText.textContent = state.language === "tr"
+    ? "Toplam 5 tur vardir. Kutu sayisi azalir, yesil kutu sayisi 5'ten 1'e duser ve tum puanlar final tabloya yazilir."
+    : "There are 5 rounds in total. Box counts shrink, green box counts drop from 5 to 1, and every point carries into the final standings.";
+  elements.heroRule2Text.textContent = state.language === "tr"
+    ? "80 kutuda 4 yesil kutu vardir."
+    : "Round 2 hides 4 green boxes among 80 boxes.";
+  elements.heroRule3Text.textContent = state.language === "tr"
+    ? "60 kutuda 3 yesil kutu vardir."
+    : "Round 3 hides 3 green boxes among 60 boxes.";
+  elements.heroRule4Text.textContent = state.language === "tr"
+    ? "50 kutuda 2 yesil kutu vardir."
+    : "Round 4 hides 2 green boxes among 50 boxes.";
+  elements.heroRule5Text.textContent = state.language === "tr"
+    ? "40 kutuda 1 yesil kutu vardir."
+    : "Round 5 hides 1 green box among 40 boxes.";
+  elements.turnRuleTitle.textContent = state.language === "tr" ? "Tur Kurali" : "Round Rule";
+  elements.bonusTitle.textContent = state.language === "tr" ? "Yesil Kalan" : "Greens Left";
+  elements.sidebarNoteText.textContent = state.language === "tr"
+    ? "Once rehberlere goz atabilir, sonra oda kurup puan tabanli yeni sistemi hemen deneyebilirsin."
+    : "You can skim the guides first, then create a room and try the score-based format right away.";
+};
+
+const finalRenderTurnRule = renderTurnRule;
+renderTurnRule = function renderTurnRuleFinal(room) {
+  finalRenderTurnRule(room);
+  const rules = {
+    1: state.language === "tr"
+      ? "1. turda 100 kutu icinde 5 yesil kutu vardir. Herkes sirayla 1 kutu acar."
+      : "Round 1 has 5 green boxes hidden among 100 boxes. Everyone opens 1 box in turn.",
+    2: state.language === "tr"
+      ? "2. turda 80 kutu icinde 4 yesil kutu vardir."
+      : "Round 2 has 4 green boxes among 80 boxes.",
+    3: state.language === "tr"
+      ? "3. turda 60 kutu icinde 3 yesil kutu vardir."
+      : "Round 3 has 3 green boxes among 60 boxes.",
+    4: state.language === "tr"
+      ? "4. turda 50 kutu icinde 2 yesil kutu vardir."
+      : "Round 4 has 2 green boxes among 50 boxes.",
+    5: state.language === "tr"
+      ? "5. turda 40 kutu icinde 1 yesil kutu vardir."
+      : "Round 5 has 1 green box among 40 boxes."
+  };
+
+  elements.stepRuleText.textContent = rules[room.currentStep] || "";
+};
+
+const finalRenderStatus = renderStatus;
+renderStatus = function renderStatusFinal(room) {
+  finalRenderStatus(room);
+  const remainingGreens = typeof room.remainingGreenCount === "number"
+    ? room.remainingGreenCount
+    : Math.max((room.greenBoxCount || 0) - (room.foundGreenCount || 0), 0);
+  elements.bonusLabel.textContent = room.phase === "waiting" ? "-" : String(remainingGreens);
+};
 
 async function bootstrap() {
   const roomCode = new URLSearchParams(window.location.search).get("room");
