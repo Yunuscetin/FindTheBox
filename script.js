@@ -513,6 +513,41 @@ function postJson(path, body) {
   });
 }
 
+function safeShowDialog(dialog) {
+  if (!dialog) {
+    return false;
+  }
+
+  try {
+    if (typeof dialog.showModal === "function") {
+      dialog.showModal();
+      return true;
+    }
+  } catch (error) {
+    console.warn("Dialog showModal failed", error);
+  }
+
+  dialog.setAttribute("open", "open");
+  return true;
+}
+
+function safeCloseDialog(dialog) {
+  if (!dialog) {
+    return;
+  }
+
+  try {
+    if (typeof dialog.close === "function") {
+      dialog.close();
+      return;
+    }
+  } catch (error) {
+    console.warn("Dialog close failed", error);
+  }
+
+  dialog.removeAttribute("open");
+}
+
 function ensurePlayerName() {
   if (state.playerName) {
     elements.playerBadge.textContent = state.playerName;
@@ -520,7 +555,14 @@ function ensurePlayerName() {
   }
 
   elements.nameInput.value = state.playerName;
-  elements.nameDialog.showModal();
+  if (!safeShowDialog(elements.nameDialog)) {
+    const fallbackName = window.prompt(state.language === "tr" ? "Oyuncu adını yaz" : "Enter your player name", state.playerName || "");
+    if (!fallbackName || !fallbackName.trim()) {
+      return Promise.reject(new Error(state.language === "tr" ? "Devam etmek için bir oyuncu adı gerekli." : "A player name is required to continue."));
+    }
+    persistPlayerName(fallbackName.trim());
+    return Promise.resolve();
+  }
 
   return new Promise((resolve) => {
     const submitHandler = (event) => {
@@ -533,7 +575,7 @@ function ensurePlayerName() {
       }
 
       persistPlayerName(name);
-      elements.nameDialog.close();
+      safeCloseDialog(elements.nameDialog);
       elements.nameForm.removeEventListener("submit", submitHandler);
       resolve();
     };
@@ -1084,7 +1126,7 @@ function renderTurnRule(room) {
       : "Round 4 has 2 green boxes among 50 boxes.",
     5: state.language === "tr"
       ? "5. turda 40 kutu içinde 1 yeşil kutu vardır."
-      : "Round 5 has 1 green box among 40 boxes.";
+      : "Round 5 has 1 green box among 40 boxes."
   };
 
   elements.stepRuleText.textContent = rules[room.currentStep] || "";
@@ -1621,8 +1663,12 @@ function setupEvents() {
   });
 
   elements.createRoomButton.addEventListener("click", async () => {
-    await ensurePlayerName();
-    elements.createRoomDialog.showModal();
+    try {
+      await ensurePlayerName();
+      safeShowDialog(elements.createRoomDialog);
+    } catch (error) {
+      showToast(error.message);
+    }
   });
 
   elements.createRoomForm.addEventListener("submit", async (event) => {
@@ -1630,7 +1676,7 @@ function setupEvents() {
 
     try {
       const maxPlayers = Number(elements.maxPlayersSelect.value);
-      elements.createRoomDialog.close();
+      safeCloseDialog(elements.createRoomDialog);
       await createRoom(maxPlayers);
     } catch (error) {
       showToast(error.message);
@@ -1638,7 +1684,7 @@ function setupEvents() {
   });
 
   elements.cancelCreateRoomButton.addEventListener("click", () => {
-    elements.createRoomDialog.close();
+    safeCloseDialog(elements.createRoomDialog);
   });
 
   elements.joinRoomForm.addEventListener("submit", async (event) => {
@@ -1690,7 +1736,7 @@ function setupEvents() {
   });
 
   elements.closeRestartDialogButton.addEventListener("click", () => {
-    elements.restartDialog.close();
+    safeCloseDialog(elements.restartDialog);
   });
 
   document.addEventListener("visibilitychange", () => {
