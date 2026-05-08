@@ -48,10 +48,25 @@ async def room_broadcast_loop() -> None:
                     continue
 
 
+async def cleanup_disconnected_player(room_code: str, player_id: str, delay_seconds: int = 8) -> None:
+    await asyncio.sleep(delay_seconds)
+    if room_connections.has_player_connection(room_code, player_id):
+        return
+
+    with SessionLocal() as db:
+        try:
+            room = room_service.leave_room(db, room_code, player_id)
+            if room:
+                await room_connections.broadcast_room(room.code, room.to_payload())
+        except RoomServiceError:
+            return
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     init_schema()
     app.state.room_broadcast_task = asyncio.create_task(room_broadcast_loop())
+    app.state.disconnect_cleanup_tasks = {}
 
 
 @app.on_event("shutdown")
@@ -61,15 +76,26 @@ async def on_shutdown() -> None:
         task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await task
+    disconnect_tasks = getattr(app.state, "disconnect_cleanup_tasks", {})
+    for disconnect_task in disconnect_tasks.values():
+        disconnect_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await disconnect_task
 
 
 @app.websocket("/ws/rooms/{room_code}")
 async def room_socket(websocket: WebSocket, room_code: str, playerId: str = Query(default="")) -> None:
+    cleanup_key = (room_code.upper(), playerId)
     try:
         room = room_service.get_room(room_code.upper())
         if not room.get_player(playerId):
             await websocket.close(code=4403)
             return
+
+        cleanup_tasks = getattr(app.state, "disconnect_cleanup_tasks", {})
+        existing_cleanup = cleanup_tasks.pop(cleanup_key, None)
+        if existing_cleanup:
+            existing_cleanup.cancel()
 
         await room_connections.connect(room_code.upper(), playerId, websocket)
         await websocket.send_json({"type": "room_update", "room": room.to_payload()})
@@ -78,10 +104,16 @@ async def room_socket(websocket: WebSocket, room_code: str, playerId: str = Quer
             await websocket.receive_text()
     except WebSocketDisconnect:
         room_connections.disconnect(room_code.upper(), playerId, websocket)
+        cleanup_task = asyncio.create_task(cleanup_disconnected_player(room_code.upper(), playerId))
+        app.state.disconnect_cleanup_tasks[cleanup_key] = cleanup_task
+        cleanup_task.add_done_callback(lambda _task, key=cleanup_key: getattr(app.state, "disconnect_cleanup_tasks", {}).pop(key, None))
     except RoomServiceError:
         await websocket.close(code=4404)
     except Exception:
         room_connections.disconnect(room_code.upper(), playerId, websocket)
+        cleanup_task = asyncio.create_task(cleanup_disconnected_player(room_code.upper(), playerId))
+        app.state.disconnect_cleanup_tasks[cleanup_key] = cleanup_task
+        cleanup_task.add_done_callback(lambda _task, key=cleanup_key: getattr(app.state, "disconnect_cleanup_tasks", {}).pop(key, None))
 
 app.include_router(health.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")

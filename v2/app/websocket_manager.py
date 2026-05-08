@@ -21,6 +21,10 @@ class RoomConnectionManager:
         if not room_connections:
             self.connections.pop(room_code, None)
 
+    def has_player_connection(self, room_code: str, player_id: str) -> bool:
+        room_connections = self.connections.get(room_code, {})
+        return bool(room_connections.get(player_id))
+
     async def broadcast_room(self, room_code: str, payload: dict) -> None:
         room_connections = self.connections.get(room_code, {})
         for player_id, websockets in list(room_connections.items()):
