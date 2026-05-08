@@ -1,3 +1,5 @@
+import asyncio
+import contextlib
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
@@ -5,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from v2.app.bootstrap import init_schema
+from v2.app.db import SessionLocal
 from v2.app.room_service import RoomServiceError, room_service
 from v2.app.routes import admin, health, rooms
 from v2.app.websocket_manager import room_connections
@@ -26,9 +29,38 @@ app = FastAPI(
 )
 
 
+async def room_broadcast_loop() -> None:
+    while True:
+        await asyncio.sleep(1)
+        room_codes = room_connections.active_room_codes()
+        if not room_codes:
+            continue
+
+        with SessionLocal() as db:
+            for room_code in room_codes:
+                try:
+                    room = room_service.get_room(room_code)
+                    room_service.update_room(db, room)
+                    await room_connections.broadcast_room(room.code, room.to_payload())
+                except RoomServiceError:
+                    await room_connections.close_room(room_code, code=4404)
+                except Exception:
+                    continue
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     init_schema()
+    app.state.room_broadcast_task = asyncio.create_task(room_broadcast_loop())
+
+
+@app.on_event("shutdown")
+async def on_shutdown() -> None:
+    task = getattr(app.state, "room_broadcast_task", None)
+    if task:
+        task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await task
 
 
 @app.websocket("/ws/rooms/{room_code}")

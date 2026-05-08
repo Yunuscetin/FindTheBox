@@ -47,5 +47,8 @@ class RoomConnectionManager:
                 finally:
                     self.disconnect(room_code, player_id, websocket)
 
+    def active_room_codes(self) -> list[str]:
+        return [room_code for room_code, room_connections in self.connections.items() if room_connections]
+
 
 room_connections = RoomConnectionManager()

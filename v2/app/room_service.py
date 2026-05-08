@@ -73,6 +73,9 @@ class RoomService:
     def _room_meta_key(self) -> str:
         return "rooms:active"
 
+    def get_active_room_codes(self) -> list[str]:
+        return sorted(code for code in self.redis.smembers(self._room_meta_key()) if code)
+
     def _save_room(self, room: Room) -> None:
         room.updated_at = now_ts()
         room.ensure_valid_turn()
